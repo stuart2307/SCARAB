@@ -1,2 +1,2 @@
 # The SCARAB
-The Saving, Checking, And Restoring Adaptive Box
+The Save and Cartridge Aid Requiring Adapter Boards
