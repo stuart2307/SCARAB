@@ -32,7 +32,7 @@ void loop() {
   delayMicroseconds(200);
   while (count >= 0) {
     PORTL = 0x00;
-    PORTK = 0xFF;
+    PORTK = 0x7F;
     PORTF = 0xE0 - count;
     digitalWrite(11, LOW);
     delayMicroseconds(10);
