@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "arduino-kicad-library-4.2.0-pcm")(type "EasyEDA (JLCEDA) Pro")(uri "C:/Users/User/Downloads/arduino-kicad-library-4.2.0-pcm.zip")(options "")(descr "")(disabled)(hidden))
+)
