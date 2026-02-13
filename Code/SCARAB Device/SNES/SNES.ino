@@ -16,6 +16,7 @@
 #define EEPROM_CONTROL_ADDRESS 0x50
 #include <Wire.h>
 #include <serialEEPROM.h>
+serialEEPROM myEEPROM(0x50, 128, 16);
 
 void setup() {
   //OUTPUT
@@ -69,6 +70,30 @@ void testDataPins(char romType) {
   Serial.write(high);
 }
 
+byte readSnesCartridge(uint32_t address) {
+  A16to23 = (address >> 16) & 0xFF;
+  A8to15 = (address >> 8) & 0xFF;
+  A0to7 = address & 0xFF;
+  delayMicroseconds(5);
+  READ_LOW;
+  delayMicroseconds(1);
+  uint8_t val = D0to7;
+  READ_HIGH;
+  return val;
+}
+
+void dumpSnesSave(uint64_t saveSize, char romLayout) {
+  switch (romLayout) {
+    case 'L': {
+      for (uint32_t x = 0; x < saveSize; x++) {
+        uint32_t address = 0x700000 + int(0x010000 * x / 0x8000) + x%0x8000;
+        Serial.write(readSnesCartridge(address));
+      }
+      break;
+    }
+  }
+}
+
 void loop() {
   // put your main code here, to run repeatedly:
   if (Serial.available() > 0)
@@ -80,14 +105,12 @@ void loop() {
         break;}
       case 0x02:{
         char data[8];
-        serialEEPROM myEEPROM(0x50, 128, 16);
-        myEEPROM.read(0x00, data, 8);
+        myEEPROM.read(0x00, (uint8_t*)data, 8);
         Serial.write(data, 8);
         break;
       }
       case 0x03:{
         char dataSet[8] = {'S','N','E','S',' ',' ',' ',' '};
-        serialEEPROM myEEPROM(0x50, 128, 16);
         myEEPROM.write(0x00, (uint8_t*)dataSet, 8);
         break;
       }
@@ -117,9 +140,15 @@ void loop() {
         }
         break;}
       case 0x20:{
-        char type = Serial.read();
-        testDataPins(type);
+        testDataPins('H');
         break;}
+      case 0x40:{
+        uint8_t ramPow = Serial.read();
+        char romType = Serial.read();
+        uint64_t ramSize = 1024 * pow(2, ramPow);
+        dumpSnesSave(ramSize, romType);
+        break;
+      }
     }
   }
 }

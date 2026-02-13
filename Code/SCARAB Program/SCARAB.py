@@ -2,6 +2,7 @@ import time
 import serial
 import sys
 import serial.tools.list_ports
+import re
 
 MEGA_IDS = [
     (0x2341, 0x0010),
@@ -37,6 +38,8 @@ SNES_COPROCESSORS = {
 scarab = None
 tryAgain = True
 romType = b'\x00'
+header = []
+currentRom = ""
 while tryAgain and scarab == None:
     for x in serial.tools.list_ports.comports():
         for y in MEGA_IDS:
@@ -73,35 +76,41 @@ if scarab != None:
             case 1:
                 scarab.write(b'\x11')
                 header = scarab.read(32)
-                if header[21] >> 5 != 1:
-                    print("Name: ", header[0:22].decode(errors="replace"))
-                    scarab.write(b'\x12')
-                    time.sleep(0.2)
-                    romType = scarab.read()
-                    scarab.flush()
-                    print("Rom Type: ", romType.decode(errors="replace"))
+                if len(set(header)) == 1:
+                    print("No cartridge inserted.")
                 else:
-                    print("Name: ", header[0:21].decode(errors="replace"))
-                    match (header[21] & 15):
-                        case 0:
-                            print("LoRom")
-                            romType = b'L'
-                        case 1:
-                            print("HiRom")
-                            romType = b'H'
-                        case 5:
-                            print("ExHiRom")
-                            romType = b'X'
-                cart_chipset = header[22] & 15
-                print("Chipset: ", SNES_CHIPSET[cart_chipset])
-                if cart_chipset > 0x2:
-                    print("Coprocessor:  ", SNES_COPROCESSORS[header[22] >> 4])
-                print("ROM Size: ", 1 << header[23], "KB")
+                    if header[21] >> 5 != 1:
+                        currentRom = header[0:22].decode(errors="replace")
+                        print("Name: ", currentRom)
+                        scarab.write(b'\x12')
+                        time.sleep(0.2)
+                        romType = scarab.read()
+                        scarab.reset_input_buffer()
+                        print("Rom Type: ", romType.decode(errors="replace"))
+                    else:
+                        currentRom = header[0:21].decode(errors="replace")
+                        print("Name: ", currentRom)
+                        match (header[21] & 15):
+                            case 0:
+                                print("LoRom")
+                                romType = b'L'
+                            case 1:
+                                print("HiRom")
+                                romType = b'H'
+                            case 5:
+                                print("ExHiRom")
+                                romType = b'X'
+                    cart_chipset = header[22] & 15
+                    print("Chipset: ", SNES_CHIPSET[cart_chipset])
+                    if cart_chipset > 0x2:
+                        print("Coprocessor:  ", SNES_COPROCESSORS[header[22] >> 4])
+                    print("ROM Size: ", 1 << header[23], "KB")
+                    print("RAM Size: ", 1 << header[24], "KB")
             case 2:
                 scarab.write(b'\x02')
                 time.sleep(0.2)
                 typeMod = scarab.read(8)
-                scarab.flush()
+                scarab.reset_input_buffer()
                 print(typeMod.decode(errors="replace"))
             case 3:
                 print("Make a choice.")
@@ -116,14 +125,35 @@ if scarab != None:
                         scarab.write(b'\x20')
                         scarab.write(romType)
                         results = scarab.read(2)
-                        scarab.flush()
+                        scarab.reset_input_buffer()
                         if results[0] != 255:
                             print("Not toggled low: ", bin(~results[0]))
                         if results[1] != 255:
                             print("Not toggled high: ", bin(~results[1]))
                         if results[1] == 255 and results[0] == 255:
                             print("All pins toggled correctly.")
+            case 4:
+                scarab.write(b'\x40')
+                scarab.write(bytes([header[24]]))
+                scarab.write(romType)
+                ramSize =1024* (1 << header[24])
+                now = time.gmtime()
+                filename = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', currentRom) + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
+                save = open(filename, "wb")
+                buffer = 0
+                print("Ready")
+                while buffer < ramSize:
+                    byte = scarab.read()
+                    if byte:
+                        print(byte)
+                        save.write(byte)
+                        buffer += 1
+                print("Buffer in!")
+                
+                print("Saved as " + filename)
+                print(4)
             case 6:
+                scarab.close()
                 sys.exit()
 else:
     print("No SCARAB Present.")
