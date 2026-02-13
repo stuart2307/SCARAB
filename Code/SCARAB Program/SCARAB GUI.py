@@ -2,6 +2,7 @@ import time
 import serial
 import sys
 import serial.tools.list_ports
+from PySide6 import QtWidgets
 
 MEGA_IDS = [
     (0x2341, 0x0010),
@@ -34,9 +35,24 @@ SNES_COPROCESSORS = {
     0xF: "Custom",
 }
 
+app = QtWidgets.QApplication()
 scarab = None
 tryAgain = True
 romType = b'\x00'
+
+class MainMenu(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("SCARAB Test")
+        self.setFixedSize(800, 600)
+        button = QtWidgets.QPushButton("gaming")
+        self.setCentralWidget(button)
+
+window = MainMenu()
+window.show()
+app.exec()
+
 while tryAgain and scarab == None:
     for x in serial.tools.list_ports.comports():
         for y in MEGA_IDS:
@@ -63,46 +79,39 @@ if scarab != None:
     while 1:
         print("Make a choice.")
         print("1. Detect Cartridge")
-        print("2. Detect Module")
+        print("2. Dump Save")
         print("3. Check Health")
-        print("4. Dump Save")
-        print("5. Restore Save")
-        print("6. Exit")
+        print("4. Exit")
         choice = input("Choice: ")
         match int(choice):
             case 1:
                 scarab.write(b'\x11')
                 header = scarab.read(32)
                 if header[21] >> 5 != 1:
-                    print("Name: ", header[0:22].decode(errors="replace"))
+                    print("Name: ", header[0:22].decode())
                     scarab.write(b'\x12')
                     time.sleep(0.2)
                     romType = scarab.read()
-                    scarab.flush()
-                    print("Rom Type: ", romType.decode(errors="replace"))
+                    print("Rom Type: ", romType.decode())
                 else:
-                    print("Name: ", header[0:21].decode(errors="replace"))
+                    print("Name: ", header[0:21].decode())
                     match (header[21] & 15):
                         case 0:
                             print("LoRom")
-                            romType = b'L'
+                            romType = 'L'
                         case 1:
                             print("HiRom")
-                            romType = b'H'
+                            romType = 'H'
                         case 5:
                             print("ExHiRom")
-                            romType = b'X'
+                            romType = 'X'
                 cart_chipset = header[22] & 15
                 print("Chipset: ", SNES_CHIPSET[cart_chipset])
                 if cart_chipset > 0x2:
                     print("Coprocessor:  ", SNES_COPROCESSORS[header[22] >> 4])
                 print("ROM Size: ", 1 << header[23], "KB")
             case 2:
-                scarab.write(b'\x02')
-                time.sleep(0.2)
-                typeMod = scarab.read(8)
-                scarab.flush()
-                print(typeMod.decode(errors="replace"))
+                print(2)
             case 3:
                 print("Make a choice.")
                 print("1. Test Pins")
@@ -116,14 +125,13 @@ if scarab != None:
                         scarab.write(b'\x20')
                         scarab.write(romType)
                         results = scarab.read(2)
-                        scarab.flush()
                         if results[0] != 255:
                             print("Not toggled low: ", bin(~results[0]))
                         if results[1] != 255:
                             print("Not toggled high: ", bin(~results[1]))
                         if results[1] == 255 and results[0] == 255:
                             print("All pins toggled correctly.")
-            case 6:
+            case 4:
                 sys.exit()
 else:
     print("No SCARAB Present.")
