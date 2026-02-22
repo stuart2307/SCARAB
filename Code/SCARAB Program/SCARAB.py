@@ -3,6 +3,7 @@ import serial
 import sys
 import serial.tools.list_ports
 import re
+import os
 
 MEGA_IDS = [
     (0x2341, 0x0010),
@@ -56,9 +57,11 @@ if scarab != None:
     time.sleep(2)
     scarab.write(b'\x01')
     val = scarab.read(6).decode()
+    print(val)
     if val == "SCARAB":
         print("SCARAB Identified!")
     else:
+        print(scarab.port)
         scarab.close()
         scarab = None
         print("Arduino connected, but not SCARAB.")
@@ -132,26 +135,40 @@ if scarab != None:
                             print("Not toggled high: ", bin(~results[1]))
                         if results[1] == 255 and results[0] == 255:
                             print("All pins toggled correctly.")
+                    case 3:
+                        scarab.write(b'\x03')
             case 4:
                 scarab.write(b'\x40')
                 scarab.write(bytes([header[24]]))
                 scarab.write(romType)
-                ramSize =1024* (1 << header[24])
+                ramSize =1024*(1 << header[24])
+                print(ramSize)
                 now = time.gmtime()
-                filename = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', currentRom) + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
+                gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', currentRom.strip())
+                os.makedirs("Saves/SNES/" + gameName, exist_ok=True)
+                filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
                 save = open(filename, "wb")
-                buffer = 0
-                print("Ready")
-                while buffer < ramSize:
-                    byte = scarab.read()
-                    if byte:
-                        print(byte)
-                        save.write(byte)
-                        buffer += 1
+                buffer = scarab.read_until(expected=bytearray("SCARAB_DUMP", "utf-8", "replace"), size=ramSize)
+                save.write(buffer)
                 print("Buffer in!")
-                
                 print("Saved as " + filename)
                 print(4)
+            case 5:
+                scarab.write(b'\x41')
+                scarab.write(bytes([header[24]]))
+                scarab.write(romType)
+                ramSize =32*(1 << header[24])
+                sfile = open("test.srm", "rb")
+                for i in range(ramSize):
+                    while scarab.in_waiting < 1:
+                        continue
+                    if scarab.read() == b'M':
+                        scarab.write(sfile.read(32))
+                        while scarab.in_waiting < 1:
+                            continue
+                        if scarab.read() != b'K':
+                            sys.exit()
+                print("File Restored.")
             case 6:
                 scarab.close()
                 sys.exit()

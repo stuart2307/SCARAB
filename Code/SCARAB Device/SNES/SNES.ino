@@ -10,7 +10,8 @@
 #define A0to7 PORTA
 #define A8to15 PORTF
 #define A16to23 PORTK
-#define D0to7 PINL
+#define D0toD7IN PINL
+#define D0toD7OUT PORTL
 #define RESET_LOW PORTG &= 0b11111011
 #define RESET_HIGH PORTG |= 0b00000100
 #define EEPROM_CONTROL_ADDRESS 0x50
@@ -36,24 +37,30 @@ void setup() {
   Serial.begin(2000000);
 }
 
+void prepSnesRead() {
+  DDRL = 0x00;
+  PORTL = 0xFF;
+  WRITE_HIGH;
+  READ_LOW;
+  delayMicroseconds(10);
+}
+
+void prepSnesWrite() {
+  DDRL = 0xFF;
+  WRITE_LOW;
+  READ_HIGH;
+  delayMicroseconds(10);
+}
+
 void readHeader(uint8_t buff[], int start, int end, char romType) {
-  uint8_t high = 0x00;
-  uint8_t mid = 0x00;
-  if (romType == 'L') { mid = 0x7F; }
-  else if (romType == 'H') { mid = 0xFF; }
-  else { mid = 0xFF; high = 0x40; }
+  uint16_t address;
+  uint8_t bank = 0x00;
+  if (romType == 'L') { address = 0x7F00; }
+  else if (romType == 'H') { address = 0xFF00; }
+  else { address = 0xFF00; bank = 0x40;}
+  prepSnesRead();
   for (uint8_t count = SNES_HEADER_START; count < SNES_HEADER_END; count++) {
-    A16to23 = high;
-    A8to15 = mid;
-    A0to7 = count;
-    delayMicroseconds(10);
-    READ_LOW;
-    delayMicroseconds(2);
-    uint8_t val = D0to7;
-    READ_HIGH;
-    delayMicroseconds(5);
-    buff[count - 0xC0] = val;
-    
+    buff[count - SNES_HEADER_START] = readSnesCartridge(bank, address + count);
   }
 }
 
@@ -70,24 +77,61 @@ void testDataPins(char romType) {
   Serial.write(high);
 }
 
-byte readSnesCartridge(uint32_t address) {
-  A16to23 = (address >> 16) & 0xFF;
+byte readSnesCartridge(uint8_t bank, uint16_t address) {
+  A16to23 = bank;
   A8to15 = (address >> 8) & 0xFF;
   A0to7 = address & 0xFF;
-  delayMicroseconds(5);
-  READ_LOW;
-  delayMicroseconds(1);
-  uint8_t val = D0to7;
-  READ_HIGH;
-  return val;
+  delayMicroseconds(3);
+  return D0toD7IN;
+}
+
+void writeSnesCartridge(uint8_t bank, uint16_t address, uint8_t byte) {
+  A16to23 = bank;
+  A8to15 = (address >> 8) & 0xFF;
+  A0to7 = address & 0xFF;
+  D0toD7OUT = byte;
+  delayMicroseconds(2);
+  WRITE_LOW;
+  delayMicroseconds(3);
+  WRITE_HIGH;
+  delayMicroseconds(2);
 }
 
 void dumpSnesSave(uint64_t saveSize, char romLayout) {
-  switch (romLayout) {
+  uint8_t buffer[32];
+  prepSnesRead();
+  switch (romLayout) {  
     case 'L': {
       for (uint32_t x = 0; x < saveSize; x++) {
-        uint32_t address = 0x700000 + int(0x010000 * x / 0x8000) + x%0x8000;
-        Serial.write(readSnesCartridge(address));
+        uint8_t bank = 0x70 + (x / 0x8000);
+        uint16_t address = x % 0x8000;
+        buffer[x%32] = readSnesCartridge(bank, address);
+        if (x%32 == 31) {
+          Serial.write(buffer, 32);
+        }
+      }
+      break;
+    }
+  }
+  Serial.write(buffer, 32);
+}
+
+void restoreSnesSave(uint64_t saveSize, char romLayout) {
+  uint8_t buffer[32];
+  Serial.flush();
+  prepSnesWrite();
+  switch (romLayout) {  
+    case 'L': {
+      for (uint32_t x = 0; x < saveSize; x++) {
+        if ((x)%32 == 0) {
+          Serial.write('M');
+          while (Serial.available() < 32) {}
+          Serial.readBytes(buffer, 32);
+          Serial.write('K');
+        }
+        uint8_t bank = 0x70 + (x / 0x8000);
+        uint16_t address = x % 0x8000;
+        writeSnesCartridge(bank, address, buffer[x%32]);
       }
       break;
     }
@@ -143,10 +187,28 @@ void loop() {
         testDataPins('H');
         break;}
       case 0x40:{
+        while(Serial.available() < 2){}
         uint8_t ramPow = Serial.read();
         char romType = Serial.read();
         uint64_t ramSize = 1024 * pow(2, ramPow);
         dumpSnesSave(ramSize, romType);
+        break;
+      }
+      case 0x41:{
+        while(Serial.available() < 2){}
+        uint8_t ramPow = Serial.read();
+        char romType = Serial.read();
+        uint64_t ramSize = 1024 * pow(2, ramPow);
+        prepSnesWrite();
+        restoreSnesSave(ramSize, romType);
+        break;
+      }
+      case 0x42:{
+        char dataSet[8] = {'S', 'N', 'E', 'S', 'T', 'E', 'S', 'T'};
+        prepSnesWrite();
+        for (uint16_t i = 0x00; i < 0x08; i++) {
+          writeSnesCartridge(0x70, i, dataSet[i]);
+        }
         break;
       }
     }
