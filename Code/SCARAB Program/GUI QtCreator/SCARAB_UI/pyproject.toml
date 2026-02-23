@@ -1,0 +1,5 @@
+[project]
+name = "PySide Widgets Project"
+
+[tool.pyside6-project]
+files = ["base.ui", "main_menu.ui", "main_menu_identified.ui", "scarab_menu.py"]

@@ -41,6 +41,7 @@ tryAgain = True
 romType = b'\x00'
 header = []
 currentRom = ""
+currentModule = ""
 while tryAgain and scarab == None:
     for x in serial.tools.list_ports.comports():
         for y in MEGA_IDS:
@@ -115,6 +116,7 @@ if scarab != None:
                 typeMod = scarab.read(8)
                 scarab.reset_input_buffer()
                 print(typeMod.decode(errors="replace"))
+                currentModule = "SNES" #Hardcoded for now, EEPROM being annoying.
             case 3:
                 print("Make a choice.")
                 print("1. Test Pins")
@@ -145,10 +147,10 @@ if scarab != None:
                 print(ramSize)
                 now = time.gmtime()
                 gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', currentRom.strip())
-                os.makedirs("Saves/SNES/" + gameName, exist_ok=True)
-                filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
+                os.makedirs("Saves/" + currentModule + "/" + gameName, exist_ok=True)
+                filename = "Saves/" + currentModule + "/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
                 save = open(filename, "wb")
-                buffer = scarab.read_until(expected=bytearray("SCARAB_DUMP", "utf-8", "replace"), size=ramSize)
+                buffer = scarab.read_until(size=ramSize)
                 save.write(buffer)
                 print("Buffer in!")
                 print("Saved as " + filename)
