@@ -4,6 +4,8 @@ import sys
 import serial.tools.list_ports
 import re
 import os
+from PySide6.QtWidgets import QApplication
+import SCARAB_GUI
 
 MEGA_IDS = [
     (0x2341, 0x0010),
@@ -35,6 +37,11 @@ SNES_COPROCESSORS = {
     0xE: "Other",
     0xF: "Custom",
 }
+
+app = QApplication()
+
+window = SCARAB_GUI.SCARABGUI()
+window.show()
 
 scarab = None
 tryAgain = True
