@@ -16,3 +16,33 @@ class base_menu(QWidget):
 
     def switch_screen(self, screen):
         self.stack.setCurrentWidget(screen)
+
+    def disable_home_button(self):
+        self.ui.home_button.setDisabled(True)
+
+    def enable_home_button(self):
+        self.ui.home_button.setDisabled(False)
+
+    def disable_modules_button(self):
+        self.ui.modules_button.setDisabled(True)
+
+    def enable_modules_button(self):
+        self.ui.modules_button.setDisabled(False)
+
+    def disable_check_health_button(self):
+        self.ui.check_health_button.setDisabled(True)
+
+    def enable_check_health_button(self):
+        self.ui.check_health_button.setDisabled(False)
+
+    def disable_save_management_button(self):
+        self.ui.save_management_button.setDisabled(True)
+
+    def enable_save_management_button(self):
+        self.ui.save_management_button.setDisabled(False)
+
+    def disable_options_button(self):
+        self.ui.options_button.setDisabled(True)
+
+    def enable_options_button(self):
+        self.ui.options_button.setDisabled(False)

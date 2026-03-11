@@ -3,8 +3,8 @@ from .check_health_custom_scan import *
 from .check_health_in_progress import *
 from .check_health_menu import *
 from .identifying import *
-from .main_menu_identified import *
-from .modules_menu_identified import *
+from .main_menu import *
+from .modules_menu import *
 from .options import *
 from .save_management_browse_saves import *
 from .save_management_dumping import *

@@ -13,8 +13,8 @@ class SCARABGUI(QtWidgets.QMainWindow):
         self.stack = QtWidgets.QStackedWidget(self.ui.content_frame)
         self.stack.setGeometry(self.ui.content_frame.rect())
 
-        self.men_home = main_menu_identified.Ui_main_menu()
-        self.mod_modules = modules_menu_identified.Ui_modules_menu()
+        self.men_home = main_menu.Ui_main_menu()
+        self.mod_modules = modules_menu.Ui_modules_menu()
         self.ch_check_health = check_health_menu.Ui_check_health_menu()
         self.ch_custom_scan = check_health_custom_scan.Ui_check_health_custom_scan()
         self.ch_scanning = check_health_in_progress.Ui_check_health_in_progress()
