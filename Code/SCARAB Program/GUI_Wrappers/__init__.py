@@ -9,3 +9,6 @@ from .dumping_save import *
 from .select_restore import *
 from .restoring_save import *
 from .ch_in_progress import *
+from .ch_custom_scan import *
+from .browse_saves import *
+from .options_menu import *
