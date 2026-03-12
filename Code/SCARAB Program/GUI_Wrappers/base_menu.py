@@ -1,9 +1,9 @@
-from ..GUI_Screens import base
-from PySide6.QtWidgets import QWidget, QStackedWidget
+from GUI_Screens import base
+from PySide6.QtWidgets import QMainWindow, QWidget, QStackedWidget
 
-class base_menu(QWidget):
+class base_menu(QMainWindow):
     def __init__(self):
-        super.__init__()
+        super().__init__()
 
         self.ui = base.Ui_SCARAB_MENU()
         self.ui.setupUi(self)
@@ -11,38 +11,38 @@ class base_menu(QWidget):
         self.stack = QStackedWidget(self.ui.content_frame)
         self.stack.setGeometry(self.ui.content_frame.rect())
     
-    def add_screen(self, screen):
+    def addScreen(self, screen):
         self.stack.addWidget(screen)
 
-    def switch_screen(self, screen):
+    def switchScreen(self, screen):
         self.stack.setCurrentWidget(screen)
 
-    def disable_home_button(self):
+    def disableHomeButton(self):
         self.ui.home_button.setDisabled(True)
 
-    def enable_home_button(self):
+    def enableHomeButton(self):
         self.ui.home_button.setDisabled(False)
 
-    def disable_modules_button(self):
+    def disableModulesButton(self):
         self.ui.modules_button.setDisabled(True)
 
-    def enable_modules_button(self):
+    def enableModulesButton(self):
         self.ui.modules_button.setDisabled(False)
 
-    def disable_check_health_button(self):
+    def disableCheckHealthButton(self):
         self.ui.check_health_button.setDisabled(True)
 
-    def enable_check_health_button(self):
+    def enableCheckHealthButton(self):
         self.ui.check_health_button.setDisabled(False)
 
-    def disable_save_management_button(self):
+    def disableSaveManagementButton(self):
         self.ui.save_management_button.setDisabled(True)
 
-    def enable_save_management_button(self):
+    def enableSaveManagementButton(self):
         self.ui.save_management_button.setDisabled(False)
 
-    def disable_options_button(self):
+    def disableOptionsButton(self):
         self.ui.options_button.setDisabled(True)
 
-    def enable_options_button(self):
+    def enableOptionsButton(self):
         self.ui.options_button.setDisabled(False)

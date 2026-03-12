@@ -39,6 +39,7 @@ SNES_COPROCESSORS = {
 }
 
 app = QApplication()
+app.setStyle("Fusion")
 
 window = SCARAB_GUI.SCARABGUI()
 window.show()
