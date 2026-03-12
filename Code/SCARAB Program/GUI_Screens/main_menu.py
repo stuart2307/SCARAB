@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_menu_identified.ui'
+## Form generated from reading UI file 'main_menu.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QPushButton,
+    QSizePolicy, QWidget)
 
 class Ui_main_menu(object):
     def setupUi(self, main_menu):
@@ -107,14 +113,16 @@ class Ui_main_menu(object):
         main_menu.setAutoFillBackground(True)
         self.scar_stat_label = QLabel(main_menu)
         self.scar_stat_label.setObjectName(u"scar_stat_label")
-        self.scar_stat_label.setGeometry(QRect(140, 340, 191, 41))
+        self.scar_stat_label.setGeometry(QRect(130, 340, 201, 41))
         font = QFont()
         font.setPointSize(20)
         self.scar_stat_label.setFont(font)
+        self.scar_stat_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.ins_mod_label = QLabel(main_menu)
         self.ins_mod_label.setObjectName(u"ins_mod_label")
-        self.ins_mod_label.setGeometry(QRect(135, 380, 201, 41))
+        self.ins_mod_label.setGeometry(QRect(120, 380, 211, 41))
         self.ins_mod_label.setFont(font)
+        self.ins_mod_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.re_identify_button = QPushButton(main_menu)
         self.re_identify_button.setObjectName(u"re_identify_button")
         self.re_identify_button.setGeometry(QRect(60, 470, 261, 71))

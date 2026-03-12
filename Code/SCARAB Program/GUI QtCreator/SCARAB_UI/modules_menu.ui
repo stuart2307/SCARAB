@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Frame</class>
- <widget class="QFrame" name="Frame">
+ <class>modules_menu</class>
+ <widget class="QFrame" name="modules_menu">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -488,8 +488,8 @@
   <widget class="QLabel" name="ins_game_label">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>400</y>
+     <x>150</x>
+     <y>380</y>
      <width>191</width>
      <height>41</height>
     </rect>
@@ -507,8 +507,8 @@
    <property name="geometry">
     <rect>
      <x>125</x>
-     <y>360</y>
-     <width>201</width>
+     <y>340</y>
+     <width>211</width>
      <height>41</height>
     </rect>
    </property>
@@ -560,8 +560,8 @@
   <widget class="QLabel" name="inserted_game">
    <property name="geometry">
     <rect>
-     <x>330</x>
-     <y>400</y>
+     <x>340</x>
+     <y>380</y>
      <width>161</width>
      <height>41</height>
     </rect>
@@ -581,8 +581,8 @@
   <widget class="QLabel" name="inserted_module">
    <property name="geometry">
     <rect>
-     <x>330</x>
-     <y>360</y>
+     <x>340</x>
+     <y>340</y>
      <width>161</width>
      <height>41</height>
     </rect>

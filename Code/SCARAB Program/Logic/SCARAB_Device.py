@@ -1,4 +1,4 @@
-import serial, serial.tools.list_ports
+import serial, serial.tools.list_ports, time
 
 MEGA_IDS = [
     (0x2341, 0x0010),
@@ -11,11 +11,31 @@ MEGA_IDS = [
 ]
 
 class scarab_device():
-    def open(self):
+    def __init__(self):
+        super().__init__()
+        self.scarab = None
+
+    def identifyScarab(self):
+        if self.scarab != None:
+            self.scarab.close()
+            self.scarab = None
         for x in serial.tools.list_ports.comports():
             for y in MEGA_IDS:
                 if y[0] == x.vid and y[1] == x.pid:
-                    scarab = serial.Serial(x.device, 2000000)
+                    self.scarab = serial.Serial(x.device, 2000000)
                     break
-            if scarab != None:
-                break
+            if self.scarab != None:
+                print("Device Found!")
+                time.sleep(2)
+                self.scarab.write(b'\x01')
+                val = self.scarab.read(6).decode()
+                print(val)
+                if val == "SCARAB":
+                    print("SCARAB Identified!")
+                    return True
+                else:
+                    print("GG go next")
+                    self.scarab.close()
+                    self.scarab = None
+        return False
+        

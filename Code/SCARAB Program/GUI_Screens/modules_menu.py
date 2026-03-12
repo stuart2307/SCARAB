@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'modules_menu_identified.ui'
+## Form generated from reading UI file 'modules_menu.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QPushButton,
+    QSizePolicy, QWidget)
 
 class Ui_modules_menu(object):
     def setupUi(self, modules_menu):
@@ -107,13 +113,13 @@ class Ui_modules_menu(object):
         modules_menu.setAutoFillBackground(True)
         self.ins_game_label = QLabel(modules_menu)
         self.ins_game_label.setObjectName(u"ins_game_label")
-        self.ins_game_label.setGeometry(QRect(140, 400, 191, 41))
+        self.ins_game_label.setGeometry(QRect(150, 380, 191, 41))
         font = QFont()
         font.setPointSize(20)
         self.ins_game_label.setFont(font)
         self.ins_mod_label = QLabel(modules_menu)
         self.ins_mod_label.setObjectName(u"ins_mod_label")
-        self.ins_mod_label.setGeometry(QRect(125, 360, 201, 41))
+        self.ins_mod_label.setGeometry(QRect(125, 340, 211, 41))
         self.ins_mod_label.setFont(font)
         self.identify_module_button = QPushButton(modules_menu)
         self.identify_module_button.setObjectName(u"identify_module_button")
@@ -125,12 +131,12 @@ class Ui_modules_menu(object):
         self.identify_cart_button.setFont(font)
         self.inserted_game = QLabel(modules_menu)
         self.inserted_game.setObjectName(u"inserted_game")
-        self.inserted_game.setGeometry(QRect(330, 400, 161, 41))
+        self.inserted_game.setGeometry(QRect(340, 380, 161, 41))
         self.inserted_game.setFont(font)
         self.inserted_game.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.inserted_module = QLabel(modules_menu)
         self.inserted_module.setObjectName(u"inserted_module")
-        self.inserted_module.setGeometry(QRect(330, 360, 161, 41))
+        self.inserted_module.setGeometry(QRect(340, 340, 161, 41))
         self.inserted_module.setFont(font)
         self.inserted_module.setAlignment(Qt.AlignmentFlag.AlignCenter)
 

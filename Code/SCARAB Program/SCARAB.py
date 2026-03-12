@@ -6,6 +6,7 @@ import re
 import os
 from PySide6.QtWidgets import QApplication
 import SCARAB_GUI
+from GUI_Wrappers import base_menu
 
 MEGA_IDS = [
     (0x2341, 0x0010),
@@ -41,7 +42,8 @@ SNES_COPROCESSORS = {
 app = QApplication()
 app.setStyle("Fusion")
 
-window = SCARAB_GUI.SCARABGUI()
+window = base_menu()
+controller = SCARAB_GUI.SCARABGUI(window)
 window.show()
 
 scarab = None

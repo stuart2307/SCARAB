@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Frame</class>
- <widget class="QFrame" name="Frame">
+ <class>options</class>
+ <widget class="QFrame" name="options">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -485,7 +485,7 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="placeholder">
    <property name="geometry">
     <rect>
      <x>100</x>

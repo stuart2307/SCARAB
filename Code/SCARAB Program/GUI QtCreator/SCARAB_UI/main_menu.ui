@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Frame</class>
- <widget class="QFrame" name="Frame">
+ <class>main_menu</class>
+ <widget class="QFrame" name="main_menu">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -488,9 +488,9 @@
   <widget class="QLabel" name="scar_stat_label">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>130</x>
      <y>340</y>
-     <width>191</width>
+     <width>201</width>
      <height>41</height>
     </rect>
    </property>
@@ -502,13 +502,16 @@
    <property name="text">
     <string>SCARAB Status:</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+   </property>
   </widget>
   <widget class="QLabel" name="ins_mod_label">
    <property name="geometry">
     <rect>
-     <x>135</x>
+     <x>120</x>
      <y>380</y>
-     <width>201</width>
+     <width>211</width>
      <height>41</height>
     </rect>
    </property>
@@ -520,8 +523,11 @@
    <property name="text">
     <string>Inserted Module:</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+   </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="re_identify_button">
    <property name="geometry">
     <rect>
      <x>60</x>
@@ -539,7 +545,7 @@
     <string>Re-Identify SCARAB</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="view_module_button">
    <property name="geometry">
     <rect>
      <x>340</x>
