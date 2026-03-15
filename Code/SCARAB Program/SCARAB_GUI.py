@@ -1,5 +1,5 @@
 from GUI_Wrappers import *
-from Logic import *
+from SCARAB_Logic import *
 from PySide6 import QtWidgets
 
 class SCARABGUI:

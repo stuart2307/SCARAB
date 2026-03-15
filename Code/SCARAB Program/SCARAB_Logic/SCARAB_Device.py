@@ -38,4 +38,4 @@ class scarab_device():
                     self.scarab.close()
                     self.scarab = None
         return False
-        
+    
