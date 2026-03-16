@@ -7,3 +7,6 @@ class module_menu(QWidget):
 
         self.ui = modules_menu.Ui_modules_menu()
         self.ui.setupUi(self)
+        
+    def setModule(self, moduleName):
+        self.ui.inserted_module = moduleName

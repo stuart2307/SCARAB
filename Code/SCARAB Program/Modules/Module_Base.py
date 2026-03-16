@@ -1,23 +1,31 @@
 import serial
 from abc import ABC, abstractmethod
 
-class scarab_module():
+class scarab_module(ABC):
     @abstractmethod
-    def identify(self, device: serial.Serial):
+    def getIdString(self):
         pass
     
     @abstractmethod
-    def read(self, device: serial.Serial):
+    def detectCartridge(self, device: serial.Serial, cartDetails: dict):
         pass
     
     @abstractmethod
-    def write(self, device: serial.Serial):
+    def testPins(self, device: serial.Serial, cartDetails: dict):
         pass
     
     @abstractmethod
-    def dumpSave(self, device: serial.Serial):
+    def calculateChecksum(self, device: serial.Serial, cartDetails: dict):
         pass
     
     @abstractmethod
-    def restoreSave(self, device: serial.Serial):
+    def testSaveRetention(self, device: serial.Serial, cartDetails: dict):
+        pass
+    
+    @abstractmethod
+    def dumpSave(self, device: serial.Serial, cartDetails: dict):
+        pass
+    
+    @abstractmethod
+    def restoreSave(self, device: serial.Serial, cartDetails: dict):
         pass

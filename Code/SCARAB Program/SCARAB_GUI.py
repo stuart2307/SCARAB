@@ -63,3 +63,8 @@ class SCARABGUI:
     def identifyScarab(self):
         result = self.scarab.identifyScarab()
         self.men_home.setScarabFound(result)
+        
+    def identifyModule(self):
+        self.scarab.identifyModule()
+        self.men_home.setModule(self.scarab.currentModule.getIdString())
+        self.mod_modules
