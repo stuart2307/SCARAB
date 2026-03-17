@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'save_management_select_restore.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QListView, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QLabel,
+    QListView, QPushButton, QSizePolicy, QWidget)
 
 class Ui_select_restore(object):
     def setupUi(self, select_restore):
@@ -130,6 +136,8 @@ class Ui_select_restore(object):
         self.save_list = QListView(select_restore)
         self.save_list.setObjectName(u"save_list")
         self.save_list.setGeometry(QRect(60, 270, 531, 192))
+        self.save_list.setFont(font)
+        self.save_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.retranslateUi(select_restore)
 

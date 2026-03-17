@@ -7,8 +7,10 @@ class SCARABGUI:
         super().__init__()
         self.view = view
         self.setupScreens()
+        self.populateSaveLists()
         self.configureButtons()
         self.scarab = SCARAB_Device.scarab_device()
+        
 
     def setupScreens(self):
         self.men_home = main_menu_screen()
@@ -57,6 +59,7 @@ class SCARABGUI:
         self.sm_select_game.ui.use_inserted_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
         self.view.ui.options_button.clicked.connect(lambda: self.view.switchScreen(self.options))
         self.sm_save_browse.ui.back_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
+        self.sm_select_game.ui.console_list.selectionModel().selectionChanged.connect(self.popGamesByConsole)
         
         self.men_home.ui.re_identify_button.clicked.connect(self.identifyScarab)
 
@@ -67,4 +70,13 @@ class SCARABGUI:
     def identifyModule(self):
         self.scarab.identifyModule()
         self.men_home.setModule(self.scarab.currentModule.getIdString())
-        self.mod_modules
+        self.mod_modules.setModule(self.scarab.currentModule.getIdString())
+        
+    def populateSaveLists(self):
+        cons = File_Management.getConsolesList()
+        self.sm_select_game.populateConsoles(cons)
+        
+    def popGamesByConsole(self):
+        console = self.sm_select_game.getCurrentConsole()
+        games = File_Management.getGamesByConsole(console)
+        self.sm_select_game.populateGames(games)

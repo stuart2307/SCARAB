@@ -45,7 +45,7 @@ class scarab_device():
                 print("Device Found!")
                 time.sleep(2)
                 self.scarab.write(b'\x01')
-                val = self.scarab.read(6).decode()
+                val = self.scarab.read(6).decode(errors="replace")
                 print(val)
                 if val == "SCARAB":
                     print("SCARAB Identified!")
@@ -61,5 +61,6 @@ class scarab_device():
         time.sleep(0.2)
         typeMod = self.scarab.read(16)
         self.scarab.reset_input_buffer()
-        typeMod = typeMod.strip()
+        typeMod = typeMod.decode(errors="replace").strip()
         self.currentModule = self.modules[typeMod] or None
+        

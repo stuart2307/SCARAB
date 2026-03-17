@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'save_management_select_game.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QListView, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QLabel,
+    QListView, QPushButton, QSizePolicy, QWidget)
 
 class Ui_select_game(object):
     def setupUi(self, select_game):
@@ -108,11 +114,13 @@ class Ui_select_game(object):
         self.save_list = QListView(select_game)
         self.save_list.setObjectName(u"save_list")
         self.save_list.setGeometry(QRect(60, 270, 531, 192))
+        font = QFont()
+        font.setPointSize(20)
+        self.save_list.setFont(font)
+        self.save_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.select_game_button = QPushButton(select_game)
         self.select_game_button.setObjectName(u"select_game_button")
         self.select_game_button.setGeometry(QRect(340, 480, 251, 71))
-        font = QFont()
-        font.setPointSize(20)
         self.select_game_button.setFont(font)
         self.det_game_label = QLabel(select_game)
         self.det_game_label.setObjectName(u"det_game_label")
@@ -133,6 +141,8 @@ class Ui_select_game(object):
         self.console_list = QListView(select_game)
         self.console_list.setObjectName(u"console_list")
         self.console_list.setGeometry(QRect(360, 80, 231, 141))
+        self.console_list.setFont(font)
+        self.console_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.retranslateUi(select_game)
 

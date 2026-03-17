@@ -7,3 +7,4 @@ class save_management(QWidget):
 
         self.ui = save_management_menu.Ui_save_management()
         self.ui.setupUi(self)
+        

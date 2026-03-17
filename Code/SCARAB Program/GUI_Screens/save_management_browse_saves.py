@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'save_management_browse_saves.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QListView, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QLabel,
+    QListView, QPushButton, QSizePolicy, QWidget)
 
 class Ui_browse_saves(object):
     def setupUi(self, browse_saves):
@@ -108,11 +114,13 @@ class Ui_browse_saves(object):
         self.save_list = QListView(browse_saves)
         self.save_list.setObjectName(u"save_list")
         self.save_list.setGeometry(QRect(60, 270, 531, 192))
+        font = QFont()
+        font.setPointSize(20)
+        self.save_list.setFont(font)
+        self.save_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.rename_button = QPushButton(browse_saves)
         self.rename_button.setObjectName(u"rename_button")
         self.rename_button.setGeometry(QRect(240, 480, 171, 71))
-        font = QFont()
-        font.setPointSize(20)
         self.rename_button.setFont(font)
         self.det_game_label = QLabel(browse_saves)
         self.det_game_label.setObjectName(u"det_game_label")
