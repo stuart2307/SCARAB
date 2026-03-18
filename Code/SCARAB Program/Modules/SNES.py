@@ -1,10 +1,7 @@
-import os
-import re
-import sys
 import serial
 
 from Modules import Module_Base
-from time import sleep, gmtime
+from time import sleep
 
 class snes_module(Module_Base.scarab_module):
     SNES_CHIPSET = [
@@ -58,14 +55,17 @@ class snes_module(Module_Base.scarab_module):
                     case 5:
                         #print("ExHiRom")
                         cartDetails["romtype"] = b'X'
-            cartDetails["chipset"] = header[22] & 15
-            print("Chipset: ", self.SNES_CHIPSET[cartDetails["chipset"]])
-            if cartDetails["chipset"] > 0x2:
+            cartDetails["chipset"] = self.SNES_CHIPSET[header[22] & 15]
+            print("Chipset: ", cartDetails["chipset"])
+            if header[22] & 15 > 0x2:
                 cartDetails["coprocessor"] = self.SNES_COPROCESSORS[header[22] >> 4]
                 #print("Coprocessor:  ", self.SNES_COPROCESSORS[header[22] >> 4])
             cartDetails["romsize"] = 1 << header[23]
             #print("ROM Size: ", 1 << header[23], "KB")
-            cartDetails["ramsize"] = 1 << header[24]
+            if cartDetails["chipset"].find("RAM") == -1:
+                cartDetails["savesize"] = 0
+            else:
+                cartDetails["savesize"] = 1 << header[24]
             #print("RAM Size: ", 1 << header[24], "KB")
             return True
 
@@ -90,31 +90,27 @@ class snes_module(Module_Base.scarab_module):
 
     def dumpSave(self, device: serial.Serial, cartDetails: dict):
         device.write(b'\x40')
-        device.write(bytes(cartDetails["ramsize"]))
+        device.write(bytes(cartDetails["savesize"]))
         device.write(cartDetails["romtype"])
-        ramSize =1024*(cartDetails["ramsize"])
-        #print(ramSize)
-        now = gmtime()
-        gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', cartDetails["name"].strip())
-        os.makedirs("Saves/SNES/" + gameName, exist_ok=True)
-        filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
-        save = open(filename, "wb")
+        ramSize = 1024*(cartDetails["savesize"])
+        #now = gmtime()
+        #gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', cartDetails["name"].strip())
+        #filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
         buffer = device.read_until(size=ramSize)
-        save.write(buffer)
+        return buffer
         #print("Buffer in!")
         #print("Saved as " + filename)
 
-    def restoreSave(self, device: serial.Serial, path, cartDetails: dict):
+    def restoreSave(self, device: serial.Serial, cartDetails: dict, buffer: bytes):
         device.write(b'\x41')
-        device.write(bytes(cartDetails["ramsize"]))
+        device.write(bytes(cartDetails["savesize"]))
         device.write(cartDetails["romtype"])
-        chunks =32*(cartDetails["ramsize"])
-        sfile = open(path, "rb")
-        for i in range(chunks):
+        for i in range(0, len(buffer), 32):
             while device.in_waiting < 1:
                 continue
             if device.read() == b'M':
-                device.write(sfile.read(32))
+                chunk = buffer[i:i+32]
+                device.write(chunk)
                 while device.in_waiting < 1:
                     continue
                 if device.read() != b'K':

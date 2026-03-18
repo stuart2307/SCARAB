@@ -49,12 +49,12 @@ class SCARABGUI:
         self.view.ui.check_health_button.clicked.connect(lambda: self.view.switchScreen(self.ch_check_health))
         self.view.ui.save_management_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_menu))
         self.sm_save_menu.ui.browse_saves_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
-        self.sm_save_menu.ui.dump_save_button.clicked.connect(lambda: self.view.switchScreen(self.sm_dump))
+        self.sm_save_menu.ui.dump_save_button.clicked.connect(self.dumpSave)
         self.sm_save_menu.ui.restore_save_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_restore))
-        self.sm_select_restore.ui.restore_save_button.clicked.connect(lambda: self.view.switchScreen(self.sm_restore))
+        self.sm_select_restore.ui.restore_save_button.clicked.connect(self.restoreSave)
         self.ch_check_health.ui.check_health_button.clicked.connect(lambda: self.view.switchScreen(self.ch_scanning))
         self.ch_check_health.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_custom_scan))
-        self.ch_custom_scan.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_check_health))
+        self.ch_custom_scan.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_scanning))
         self.sm_select_game.ui.select_game_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
         self.sm_select_game.ui.use_inserted_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
         self.view.ui.options_button.clicked.connect(lambda: self.view.switchScreen(self.options))
@@ -66,6 +66,22 @@ class SCARABGUI:
     def identifyScarab(self):
         result = self.scarab.identifyScarab()
         self.men_home.setScarabFound(result)
+        
+    def dumpSave(self):
+        location = File_Management.getNewSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"])
+        self.sm_dump.dumpingSetup(location)
+        self.view.switchScreen(self.sm_dump)
+        save_data = self.scarab.dumpSave()
+        File_Management.writeSave(location, save_data)
+        self.sm_dump.dumpedSetup()
+        
+    def restoreSave(self):
+        self.sm_restore.restoringSetup()
+        self.view.switchScreen(self.sm_restore)
+        selected_save = self.sm_select_restore.getSelectedSave()
+        save_buffer = File_Management.readSave(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"], selected_save)
+        self.scarab.restoreSave(save_buffer)
+        self.sm_restore.restoredSetup()
         
     def identifyModule(self):
         self.scarab.identifyModule()

@@ -32,7 +32,7 @@ class scarab_device():
                 if inspect.isclass(obj) and issubclass(obj, Module_Base.scarab_module) and obj is not Module_Base.scarab_module:
                     self.modules[obj.getIdString()] = obj()
         
-    def identifyScarab(self):
+    def identifyScarab(self) -> bool:
         if self.scarab != None:
             self.scarab.close()
             self.scarab = None
@@ -63,4 +63,10 @@ class scarab_device():
         self.scarab.reset_input_buffer()
         typeMod = typeMod.decode(errors="replace").strip()
         self.currentModule = self.modules[typeMod] or None
+        
+    def dumpSave(self):
+        return self.currentModule.dumpSave(self.scarab, self.cartridge)
+    
+    def restoreSave(self, buffer: bytes):
+        return self.currentModule.restoreSave(self.scarab, self.cartridge, buffer)
         

@@ -11,3 +11,6 @@ class select_restore(QWidget):
         
     def populateSaves(self, saves):
         self.ui.save_list.setModel(QStringListModel(saves))
+        
+    def getSelectedSave(self):
+        return self.ui.save_list.currentIndex().data()

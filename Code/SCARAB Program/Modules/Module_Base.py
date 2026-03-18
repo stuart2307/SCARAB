@@ -27,5 +27,5 @@ class scarab_module(ABC):
         pass
     
     @abstractmethod
-    def restoreSave(self, device: serial.Serial, cartDetails: dict):
+    def restoreSave(self, device: serial.Serial, cartDetails: dict, buffer: bytes):
         pass
