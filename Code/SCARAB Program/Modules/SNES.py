@@ -25,11 +25,12 @@ class snes_module(Module_Base.scarab_module):
         0xF: "Custom",
     }
     
-    def getIdString():
+    def getIdString(self):
         return "SNES"
     
     def detectCartridge(self, device: serial.Serial, cartDetails: dict):
         device.write(b'\x11')
+        sleep(0.2)
         header = device.read(32)
         if len(set(header)) == 1:
             return False
@@ -39,21 +40,21 @@ class snes_module(Module_Base.scarab_module):
                 #print("Name: ", currentRom)
                 device.write(b'\x12')
                 sleep(0.2)
-                cartDetails["romtype"] = device.read()
+                cartDetails["romtype"] = device.read().decode(errors="replace")
                 device.reset_input_buffer()
-                #print("Rom Type: ", self.romType.decode(errors="replace"))
+                print("Rom Type: ", cartDetails["romtype"])
             else:
                 cartDetails["name"] = header[0:21].decode(errors="replace")
                 #print("Name: ", currentRom)
                 match (header[21] & 15):
                     case 0:
-                        #print("LoRom")
+                        print("LoRom")
                         cartDetails["romtype"] = b'L'
                     case 1:
-                        #print("HiRom")
+                        print("HiRom")
                         cartDetails["romtype"] = b'H'
                     case 5:
-                        #print("ExHiRom")
+                        print("ExHiRom")
                         cartDetails["romtype"] = b'X'
             cartDetails["chipset"] = self.SNES_CHIPSET[header[22] & 15]
             print("Chipset: ", cartDetails["chipset"])
@@ -62,11 +63,12 @@ class snes_module(Module_Base.scarab_module):
                 #print("Coprocessor:  ", self.SNES_COPROCESSORS[header[22] >> 4])
             cartDetails["romsize"] = 1 << header[23]
             #print("ROM Size: ", 1 << header[23], "KB")
-            if cartDetails["chipset"].find("RAM") == -1:
+            if "RAM" not in cartDetails["chipset"]:
                 cartDetails["savesize"] = 0
             else:
-                cartDetails["savesize"] = 1 << header[24]
+                cartDetails["savesize"] = header[24]
             #print("RAM Size: ", 1 << header[24], "KB")
+            cartDetails["checksum"] = f"0x{((header[30] << 8) | header[31]):04X}"
             return True
 
     def testPins(self, device: serial.Serial, cartDetails: dict):
@@ -91,12 +93,13 @@ class snes_module(Module_Base.scarab_module):
     def dumpSave(self, device: serial.Serial, cartDetails: dict):
         device.write(b'\x40')
         device.write(bytes(cartDetails["savesize"]))
-        device.write(cartDetails["romtype"])
-        ramSize = 1024*(cartDetails["savesize"])
+        device.write(bytes(cartDetails["romtype"]))
+        ramSize = 1024*(1 << cartDetails["savesize"])
         #now = gmtime()
         #gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', cartDetails["name"].strip())
         #filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
         buffer = device.read_until(size=ramSize)
+        print(len(buffer))
         return buffer
         #print("Buffer in!")
         #print("Saved as " + filename)
@@ -104,7 +107,7 @@ class snes_module(Module_Base.scarab_module):
     def restoreSave(self, device: serial.Serial, cartDetails: dict, buffer: bytes):
         device.write(b'\x41')
         device.write(bytes(cartDetails["savesize"]))
-        device.write(cartDetails["romtype"])
+        device.write(bytes(cartDetails["romtype"]))
         for i in range(0, len(buffer), 32):
             while device.in_waiting < 1:
                 continue

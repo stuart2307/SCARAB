@@ -1,3 +1,5 @@
+from time import sleep
+
 from GUI_Wrappers import *
 from SCARAB_Logic import *
 from PySide6 import QtWidgets
@@ -66,14 +68,29 @@ class SCARABGUI:
     def identifyScarab(self):
         result = self.scarab.identifyScarab()
         self.men_home.setScarabFound(result)
+        #FIX THIS, HARDCODE BAD
+        self.scarab.currentModule = self.scarab.modules["SNES"]
+        if self.scarab.currentModule is not None:
+            self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge)
+        self.ch_check_health.ui.name.setText(self.scarab.cartridge["name"])
+        self.ch_check_health.ui.rom_size.setText(str(self.scarab.cartridge["romsize"]) + "KB")
+        self.ch_check_health.ui.chipset.setText(self.scarab.cartridge["chipset"])
+        self.ch_check_health.ui.checksum.setText(self.scarab.cartridge["checksum"])
         
     def dumpSave(self):
+        print("A")
         location = File_Management.getNewSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"])
+        print("A")
         self.sm_dump.dumpingSetup(location)
+        print("A")
         self.view.switchScreen(self.sm_dump)
+        print("A")
         save_data = self.scarab.dumpSave()
+        print("A")
         File_Management.writeSave(location, save_data)
+        print("A")
         self.sm_dump.dumpedSetup()
+        print("A")
         
     def restoreSave(self):
         self.sm_restore.restoringSetup()

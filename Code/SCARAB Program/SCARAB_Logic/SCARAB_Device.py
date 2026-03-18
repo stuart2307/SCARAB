@@ -1,7 +1,6 @@
 import importlib
 import inspect
 import pkgutil
-from sys import modules
 from Modules import Module_Base
 import Modules
 import serial, serial.tools.list_ports, time
@@ -30,7 +29,8 @@ class scarab_device():
             module = importlib.import_module("Modules." + moduleName)
             for name, obj in inspect.getmembers(module):
                 if inspect.isclass(obj) and issubclass(obj, Module_Base.scarab_module) and obj is not Module_Base.scarab_module:
-                    self.modules[obj.getIdString()] = obj()
+                    mod = obj()
+                    self.modules[mod.getIdString()] = mod
         
     def identifyScarab(self) -> bool:
         if self.scarab != None:
@@ -39,7 +39,7 @@ class scarab_device():
         for x in serial.tools.list_ports.comports():
             for y in MEGA_IDS:
                 if y[0] == x.vid and y[1] == x.pid:
-                    self.scarab = serial.Serial(x.device, 2000000)
+                    self.scarab = serial.Serial(x.device, 2000000, timeout=10)
                     break
             if self.scarab != None:
                 print("Device Found!")

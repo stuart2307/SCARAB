@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'check_health_menu.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFormLayout, QFrame, QLabel,
+    QPushButton, QSizePolicy, QWidget)
 
 class Ui_check_health_menu(object):
     def setupUi(self, check_health_menu):
@@ -119,46 +125,68 @@ class Ui_check_health_menu(object):
         self.custom_scan_button.setObjectName(u"custom_scan_button")
         self.custom_scan_button.setGeometry(QRect(340, 470, 251, 71))
         self.custom_scan_button.setFont(font)
-        self.name_label = QLabel(check_health_menu)
+        self.formLayoutWidget = QWidget(check_health_menu)
+        self.formLayoutWidget.setObjectName(u"formLayoutWidget")
+        self.formLayoutWidget.setGeometry(QRect(60, 293, 531, 171))
+        self.formLayout = QFormLayout(self.formLayoutWidget)
+        self.formLayout.setObjectName(u"formLayout")
+        self.formLayout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
+        self.name_label = QLabel(self.formLayoutWidget)
         self.name_label.setObjectName(u"name_label")
-        self.name_label.setGeometry(QRect(120, 280, 201, 41))
         self.name_label.setFont(font)
-        self.name_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.rom_sz_label = QLabel(check_health_menu)
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.name_label)
+
+        self.rom_sz_label = QLabel(self.formLayoutWidget)
         self.rom_sz_label.setObjectName(u"rom_sz_label")
-        self.rom_sz_label.setGeometry(QRect(120, 320, 201, 41))
         self.rom_sz_label.setFont(font)
-        self.rom_sz_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.chip_label = QLabel(check_health_menu)
+        self.rom_sz_label.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.rom_sz_label)
+
+        self.chip_label = QLabel(self.formLayoutWidget)
         self.chip_label.setObjectName(u"chip_label")
-        self.chip_label.setGeometry(QRect(120, 360, 201, 41))
         self.chip_label.setFont(font)
-        self.chip_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.hdr_chk_label = QLabel(check_health_menu)
+        self.chip_label.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.chip_label)
+
+        self.hdr_chk_label = QLabel(self.formLayoutWidget)
         self.hdr_chk_label.setObjectName(u"hdr_chk_label")
-        self.hdr_chk_label.setGeometry(QRect(90, 400, 231, 41))
         self.hdr_chk_label.setFont(font)
-        self.hdr_chk_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.rom_size = QLabel(check_health_menu)
-        self.rom_size.setObjectName(u"rom_size")
-        self.rom_size.setGeometry(QRect(340, 320, 201, 41))
-        self.rom_size.setFont(font)
-        self.rom_size.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.checksum = QLabel(check_health_menu)
-        self.checksum.setObjectName(u"checksum")
-        self.checksum.setGeometry(QRect(340, 400, 221, 41))
-        self.checksum.setFont(font)
-        self.checksum.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.chipset = QLabel(check_health_menu)
-        self.chipset.setObjectName(u"chipset")
-        self.chipset.setGeometry(QRect(340, 360, 201, 41))
-        self.chipset.setFont(font)
-        self.chipset.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.name = QLabel(check_health_menu)
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.hdr_chk_label)
+
+        self.name = QLabel(self.formLayoutWidget)
         self.name.setObjectName(u"name")
-        self.name.setGeometry(QRect(340, 280, 201, 41))
         self.name.setFont(font)
         self.name.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.name)
+
+        self.rom_size = QLabel(self.formLayoutWidget)
+        self.rom_size.setObjectName(u"rom_size")
+        self.rom_size.setFont(font)
+        self.rom_size.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.rom_size)
+
+        self.chipset = QLabel(self.formLayoutWidget)
+        self.chipset.setObjectName(u"chipset")
+        self.chipset.setFont(font)
+        self.chipset.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.chipset)
+
+        self.checksum = QLabel(self.formLayoutWidget)
+        self.checksum.setObjectName(u"checksum")
+        self.checksum.setFont(font)
+        self.checksum.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.checksum)
+
 
         self.retranslateUi(check_health_menu)
 
@@ -173,10 +201,10 @@ class Ui_check_health_menu(object):
         self.name_label.setText(QCoreApplication.translate("check_health_menu", u"Name:", None))
         self.rom_sz_label.setText(QCoreApplication.translate("check_health_menu", u"ROM Size:", None))
         self.chip_label.setText(QCoreApplication.translate("check_health_menu", u"Chipset:", None))
-        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_menu", u"Header Checksum:", None))
-        self.rom_size.setText("")
-        self.checksum.setText("")
-        self.chipset.setText("")
+        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_menu", u"Checksum:", None))
         self.name.setText("")
+        self.rom_size.setText("")
+        self.chipset.setText("")
+        self.checksum.setText("")
     # retranslateUi
 

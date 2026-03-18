@@ -16,8 +16,8 @@
 #define RESET_HIGH PORTG |= 0b00000100
 #define EEPROM_CONTROL_ADDRESS 0x50
 #include <Wire.h>
-#include <serialEEPROM.h>
-serialEEPROM myEEPROM(0x50, 128, 16);
+//#include <serialEEPROM.h>
+//serialEEPROM myEEPROM(0x50, 128, 16);
 
 void setup() {
   //OUTPUT
@@ -149,13 +149,13 @@ void loop() {
         break;}
       case 0x02:{
         char data[8];
-        myEEPROM.read(0x00, (uint8_t*)data, 8);
+        //myEEPROM.read(0x00, (uint8_t*)data, 8);
         Serial.write(data, 8);
         break;
       }
       case 0x03:{
         char dataSet[8] = {'S','N','E','S',' ',' ',' ',' '};
-        myEEPROM.write(0x00, (uint8_t*)dataSet, 8);
+        //myEEPROM.write(0x00, (uint8_t*)dataSet, 8);
         break;
       }
       case 0x11:{

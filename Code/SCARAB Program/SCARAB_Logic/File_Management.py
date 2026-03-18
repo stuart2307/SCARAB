@@ -28,7 +28,8 @@ def getGamesByConsole(console: str) -> list:
 
 def writeSave(filepath: str, buffer: bytes):
     file = SAVE_PATH.joinpath(filepath)
-    file.write_bytes(buffer)
+    file.parent.mkdir(parents=True, exist_ok=True)
+    file.write_bytes(buffer)    
     
 def readSave(current_module: str, cartridge_name: str, save_name: str) -> bytes:
     save_path = SAVE_PATH.joinpath(getExistingSaveFilePath(current_module, cartridge_name, save_name))

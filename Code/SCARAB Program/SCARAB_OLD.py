@@ -39,13 +39,6 @@ SNES_COPROCESSORS = {
     0xF: "Custom",
 }
 
-app = QApplication()
-app.setStyle("Fusion")
-
-window = base_menu()
-controller = SCARAB_GUI.SCARABGUI(window)
-window.show()
-
 scarab = None
 tryAgain = True
 romType = b'\x00'
@@ -161,6 +154,7 @@ if scarab != None:
                 save = open(filename, "wb")
                 buffer = scarab.read_until(size=ramSize)
                 save.write(buffer)
+                save.close()
                 print("Buffer in!")
                 print("Saved as " + filename)
             case 5:
