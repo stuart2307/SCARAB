@@ -92,13 +92,13 @@ class snes_module(Module_Base.scarab_module):
 
     def dumpSave(self, device: serial.Serial, cartDetails: dict):
         device.write(b'\x40')
-        device.write(bytes(cartDetails["savesize"]))
-        device.write(bytes(cartDetails["romtype"]))
-        ramSize = 1024*(1 << cartDetails["savesize"])
+        device.write(bytes((cartDetails["savesize"],)))
+        device.write(cartDetails["romtype"])
+        ramSize = 1024*(1 << int(cartDetails["savesize"]))
         #now = gmtime()
         #gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', cartDetails["name"].strip())
         #filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
-        buffer = device.read_until(size=ramSize)
+        buffer = device.read_until(expected= bytes("SCARABSAVEDATA", "utf-8", "replace"),size=ramSize)
         print(len(buffer))
         return buffer
         #print("Buffer in!")
