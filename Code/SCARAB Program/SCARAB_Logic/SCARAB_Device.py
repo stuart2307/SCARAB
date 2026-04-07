@@ -5,6 +5,8 @@ from Modules import Module_Base
 import Modules
 import serial, serial.tools.list_ports, time
 
+from SCARAB_Logic import Test_Results
+
 MEGA_IDS = [
     (0x2341, 0x0010),
     (0x2341, 0x0042),
@@ -17,7 +19,6 @@ MEGA_IDS = [
 
 class scarab_device():
     def __init__(self):
-        super().__init__()
         self.scarab = None
         self.cartridge = dict()
         self.modules = dict()
@@ -39,7 +40,7 @@ class scarab_device():
         for x in serial.tools.list_ports.comports():
             for y in MEGA_IDS:
                 if y[0] == x.vid and y[1] == x.pid:
-                    self.scarab = serial.Serial(x.device, 2000000, timeout=10)
+                    self.scarab = serial.Serial(x.device, 2000000)
                     break
             if self.scarab != None:
                 print("Device Found!")
@@ -59,7 +60,7 @@ class scarab_device():
     def identifyModule(self):
         self.scarab.write(b'\x02')
         time.sleep(0.2)
-        typeMod = self.scarab.read(16)
+        typeMod = self.scarab.read(8)
         self.scarab.reset_input_buffer()
         typeMod = typeMod.decode(errors="replace").strip()
         self.currentModule = self.modules[typeMod] or None
@@ -69,4 +70,6 @@ class scarab_device():
     
     def restoreSave(self, buffer: bytes):
         return self.currentModule.restoreSave(self.scarab, self.cartridge, buffer)
-        
+    
+    def checkHealth(self, pins, checksum, retention) -> Test_Results.test_result:
+        return self.currentModule.checkHealth(self.scarab, self.cartridge, pins, checksum, retention)

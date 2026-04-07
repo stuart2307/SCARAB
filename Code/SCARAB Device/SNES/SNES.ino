@@ -15,9 +15,8 @@
 #define RESET_LOW PORTG &= 0b11111011
 #define RESET_HIGH PORTG |= 0b00000100
 #define EEPROM_CONTROL_ADDRESS 0x50
+#define NOP __asm__ __volatile__("nop\n\t")
 #include <Wire.h>
-//#include <serialEEPROM.h>
-//serialEEPROM myEEPROM(0x50, 128, 16);
 
 void setup() {
   //OUTPUT
@@ -29,17 +28,17 @@ void setup() {
   //INPUT
   DDRL = 0x00;
   PORTL = 0xFF;
-  //Pin /ROMSEL
   WRITE_HIGH;
   ROMSEL_LOW;
   READ_HIGH;
   RESET_HIGH;
   Serial.begin(2000000);
+  Wire.begin();
+  Wire.setWireTimeout(1000, true);
 }
 
 void prepSnesRead() {
   DDRL = 0x00;
-  PORTL = 0xFF;
   WRITE_HIGH;
   READ_LOW;
   delayMicroseconds(10);
@@ -77,12 +76,40 @@ void testDataPins(char romType) {
   Serial.write(high);
 }
 
+uint16_t calcSnesChecksum(uint64_t romSize, char romLayout) {
+  prepSnesRead();
+  uint16_t crc = 0x0000;
+  switch(romLayout) {
+    case 'L': {
+      for (uint64_t x = 0; x < romSize; x++) {
+        uint8_t bank = (x / 0x8000) + 0x80;
+        //if (x%0x8000 == 0) {
+        //    Serial.print("Bank: ");
+        //    Serial.print(bank, HEX);
+        //    Serial.println();
+        //  }
+        uint16_t address = (x % 0x8000) + 0x8000;
+        crc += readSnesCartridge(bank, address);
+        delayMicroseconds(5);
+      }
+      break;
+    }
+  }
+  return crc;
+}
+
 byte readSnesCartridge(uint8_t bank, uint16_t address) {
-  A16to23 = bank;
-  A8to15 = (address >> 8) & 0xFF;
   A0to7 = address & 0xFF;
-  delayMicroseconds(3);
-  return D0toD7IN;
+  A8to15 = (address >> 8) & 0xFF;
+  A16to23 = bank;
+  NOP;
+  NOP;
+  NOP;
+  NOP;
+  NOP;
+  NOP;
+  byte temp = D0toD7IN;
+  return temp;
 }
 
 void writeSnesCartridge(uint8_t bank, uint16_t address, uint8_t byte) {
@@ -137,6 +164,30 @@ void restoreSnesSave(uint64_t saveSize, char romLayout) {
     }
   }
 }
+void eeprom_write_page(byte deviceaddress, uint8_t eeaddr, const byte * data, byte length)
+{
+    Wire.beginTransmission(deviceaddress);
+    Wire.write(int(eeaddr));
+    for (int i = 0; i < length; i++) {
+        Wire.write(data[i]);
+    }
+    Wire.endTransmission();
+    delay(10);
+}
+
+int eeprom_read_buffer(byte deviceaddr, uint8_t eeaddr, byte * buffer, byte length)
+{
+    Wire.beginTransmission(deviceaddr);
+    Wire.write(int(eeaddr));
+    Wire.endTransmission(false);
+
+    Wire.requestFrom(deviceaddr, length);
+    int i;
+    for (i = 0; i < length && Wire.available(); i++) {
+        buffer[i] = Wire.read();
+    }
+    return i;
+}
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -148,14 +199,19 @@ void loop() {
         Serial.print("SCARAB");
         break;}
       case 0x02:{
-        char data[8];
-        //myEEPROM.read(0x00, (uint8_t*)data, 8);
-        Serial.write(data, 8);
+        byte myBuff[8];
+        eeprom_read_buffer(0x50, 0x00, myBuff, 0x08);
+        Serial.write(myBuff, 8);
         break;
       }
       case 0x03:{
-        char dataSet[8] = {'S','N','E','S',' ',' ',' ',' '};
-        //myEEPROM.write(0x00, (uint8_t*)dataSet, 8);
+        byte myBuff[8];
+        while(Serial.available() < 8){}
+        for (int i = 0; i < 8; i++) {
+          myBuff[i] = Serial.read();
+        }
+        eeprom_write_page(0x50, 0x00, myBuff, 0x08);
+        Serial.println("OK");
         break;
       }
       case 0x11:{
@@ -186,6 +242,27 @@ void loop() {
       case 0x20:{
         testDataPins('H');
         break;}
+
+      case 0x30:{
+        while(Serial.available() < 2){}
+        uint8_t romPow = Serial.read();
+        char romType = Serial.read();
+        uint64_t romSize = 1024UL << romPow;
+        uint16_t crc = calcSnesChecksum(romSize, romType);
+        uint8_t upper = crc >> 8;
+        uint8_t lower = crc & 0xFF;
+        Serial.write(upper);
+        Serial.write(lower);
+        break;
+      }
+      case 0x3F: {
+        while(Serial.available() < 2){}
+        uint8_t romPow = Serial.read();
+        char romType = Serial.read();
+        uint64_t romSize = 1024UL << romPow;
+        tempSnesDump(romSize, romType);
+        break;
+      }
       case 0x40:{
         while(Serial.available() < 2){}
         uint8_t ramPow = Serial.read();
@@ -201,14 +278,6 @@ void loop() {
         uint64_t ramSize = 1024 * pow(2, ramPow);
         prepSnesWrite();
         restoreSnesSave(ramSize, romType);
-        break;
-      }
-      case 0x42:{
-        char dataSet[8] = {'S', 'N', 'E', 'S', 'T', 'E', 'S', 'T'};
-        prepSnesWrite();
-        for (uint16_t i = 0x00; i < 0x08; i++) {
-          writeSnesCartridge(0x70, i, dataSet[i]);
-        }
         break;
       }
     }

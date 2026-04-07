@@ -3,6 +3,8 @@ from time import sleep
 from GUI_Wrappers import *
 from SCARAB_Logic import *
 from PySide6 import QtWidgets
+import threading
+from PySide6.QtCore import QMetaObject, Qt
 
 class SCARABGUI:
     def __init__(self, view: base_menu):
@@ -50,13 +52,14 @@ class SCARABGUI:
         self.view.ui.modules_button.clicked.connect(lambda: self.view.switchScreen(self.mod_modules))
         self.view.ui.check_health_button.clicked.connect(lambda: self.view.switchScreen(self.ch_check_health))
         self.view.ui.save_management_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_menu))
+        self.mod_modules.ui.identify_module_button.clicked.connect(self.identifyModule)
         self.sm_save_menu.ui.browse_saves_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
         self.sm_save_menu.ui.dump_save_button.clicked.connect(self.dumpSave)
-        self.sm_save_menu.ui.restore_save_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_restore))
+        self.sm_save_menu.ui.restore_save_button.clicked.connect(self.switchRestore)
         self.sm_select_restore.ui.restore_save_button.clicked.connect(self.restoreSave)
-        self.ch_check_health.ui.check_health_button.clicked.connect(lambda: self.view.switchScreen(self.ch_scanning))
+        self.ch_check_health.ui.check_health_button.clicked.connect(self.checkHealth)
         self.ch_check_health.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_custom_scan))
-        self.ch_custom_scan.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_scanning))
+        self.ch_custom_scan.ui.custom_scan_button.clicked.connect(lambda: self.checkHealth(True))
         self.sm_select_game.ui.select_game_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
         self.sm_select_game.ui.use_inserted_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
         self.view.ui.options_button.clicked.connect(lambda: self.view.switchScreen(self.options))
@@ -66,36 +69,39 @@ class SCARABGUI:
         self.men_home.ui.re_identify_button.clicked.connect(self.identifyScarab)
 
     def identifyScarab(self):
+        prev_screen = self.view.getScreen()
+        self.view.switchScreen(self.identifying)
         result = self.scarab.identifyScarab()
         self.men_home.setScarabFound(result)
         #FIX THIS, HARDCODE BAD
         self.scarab.currentModule = self.scarab.modules["SNES"]
-        if self.scarab.currentModule is not None:
+        if self.scarab.currentModule is not None and result:
             self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge)
-        self.ch_check_health.ui.name.setText(self.scarab.cartridge["name"])
-        self.ch_check_health.ui.rom_size.setText(str(self.scarab.cartridge["romsize"]) + "KB")
-        self.ch_check_health.ui.chipset.setText(self.scarab.cartridge["chipset"])
-        self.ch_check_health.ui.checksum.setText(self.scarab.cartridge["checksum"])
+            print(self.scarab.cartridge)
+            self.ch_check_health.ui.name.setText(self.scarab.cartridge["name"])
+            self.ch_check_health.ui.rom_size.setText(str(self.scarab.cartridge["romsize"]) + "KB")
+            self.ch_check_health.ui.chipset.setText(self.scarab.cartridge["chipset"])
+            self.ch_check_health.ui.checksum.setText(self.scarab.cartridge["checksum"])
+        self.view.switchScreen(prev_screen)
         
     def dumpSave(self):
-        print("A")
         location = File_Management.getNewSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"])
-        print("A")
         self.sm_dump.dumpingSetup(location)
-        print("A")
         self.view.switchScreen(self.sm_dump)
-        print("A")
         save_data = self.scarab.dumpSave()
-        print("A")
         File_Management.writeSave(location, save_data)
-        print("A")
         self.sm_dump.dumpedSetup()
-        print("A")
+        
+    def switchRestore(self):
+        saves = File_Management.getSavesByGame(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"])
+        self.sm_select_restore.populateSaves(saves)
+        self.view.switchScreen(self.sm_select_restore)
         
     def restoreSave(self):
-        self.sm_restore.restoringSetup()
-        self.view.switchScreen(self.sm_restore)
         selected_save = self.sm_select_restore.getSelectedSave()
+        location = File_Management.getExistingSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"], selected_save)
+        self.sm_restore.restoringSetup(location)
+        self.view.switchScreen(self.sm_restore)
         save_buffer = File_Management.readSave(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"], selected_save)
         self.scarab.restoreSave(save_buffer)
         self.sm_restore.restoredSetup()
@@ -113,3 +119,29 @@ class SCARABGUI:
         console = self.sm_select_game.getCurrentConsole()
         games = File_Management.getGamesByConsole(console)
         self.sm_select_game.populateGames(games)
+        
+    def checkHealth(self, custom=False):
+        if custom:
+            pins = self.ch_custom_scan.isPinsChecked()
+            checksum = self.ch_custom_scan.isChecksumChecked()
+            retention = self.ch_custom_scan.isRetentionChecked()
+            self.ch_scanning.setupCheck(pins, checksum, retention)
+        else:
+            pins = True
+            checksum = True
+            retention = True
+            self.ch_scanning.setupCheck(pins, checksum, retention)
+        self.view.switchScreen(self.ch_scanning)
+        
+        def worker():
+            results = self.scarab.checkHealth(pins, checksum, retention)
+
+            QMetaObject.invokeMethod(
+                self,
+                lambda: self.ch_scanning.displayResults(results),
+                Qt.QueuedConnection
+            )
+
+        threading.Thread(target=worker, daemon=True).start()
+        #results = self.scarab.checkHealth(pins, checksum, retention)
+        #self.ch_scanning.displayResults(results)

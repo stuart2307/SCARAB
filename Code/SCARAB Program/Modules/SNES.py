@@ -3,6 +3,8 @@ import serial
 from Modules import Module_Base
 from time import sleep
 
+from SCARAB_Logic import Test_Results
+
 class snes_module(Module_Base.scarab_module):
     SNES_CHIPSET = [
         "ROM Only",
@@ -28,19 +30,19 @@ class snes_module(Module_Base.scarab_module):
     def getIdString(self):
         return "SNES"
     
-    def detectCartridge(self, device: serial.Serial, cartDetails: dict):
+    def detectCartridge(self, device: serial.Serial, cartDetails: dict) -> bool:
         device.write(b'\x11')
-        sleep(0.2)
+        sleep(.2)
         header = device.read(32)
         if len(set(header)) == 1:
             return False
         else:
             if header[21] >> 5 != 1:
-                cartDetails["name"] = header[0:22].decode(errors="replace")
+                cartDetails["name"] = header[0:22].decode(errors="replace").strip()
                 #print("Name: ", currentRom)
                 device.write(b'\x12')
                 sleep(0.2)
-                cartDetails["romtype"] = device.read().decode(errors="replace")
+                cartDetails["romtype"] = device.read()
                 device.reset_input_buffer()
                 print("Rom Type: ", cartDetails["romtype"])
             else:
@@ -62,16 +64,27 @@ class snes_module(Module_Base.scarab_module):
                 cartDetails["coprocessor"] = self.SNES_COPROCESSORS[header[22] >> 4]
                 #print("Coprocessor:  ", self.SNES_COPROCESSORS[header[22] >> 4])
             cartDetails["romsize"] = 1 << header[23]
+            cartDetails["romexp"] = header[23]
             #print("ROM Size: ", 1 << header[23], "KB")
             if "RAM" not in cartDetails["chipset"]:
                 cartDetails["savesize"] = 0
             else:
                 cartDetails["savesize"] = header[24]
             #print("RAM Size: ", 1 << header[24], "KB")
-            cartDetails["checksum"] = f"0x{((header[30] << 8) | header[31]):04X}"
+            cartDetails["checksum"] = f"0x{((header[30]) | header[31] << 8):04X}"
             return True
 
-    def testPins(self, device: serial.Serial, cartDetails: dict):
+    def checkHealth(self, device, cartDetails, pins, checksum, retention) -> Test_Results.test_result:
+        results = Test_Results.test_result()
+        if pins:
+            results.pins_ok = self.testPins(device, cartDetails)
+        if checksum:
+            results.checksum_ok = self.calculateChecksum(device, cartDetails)
+        if retention:
+            results.retention_ok = self.testSaveRetention(device, cartDetails)
+        return results
+
+    def testPins(self, device: serial.Serial, cartDetails: dict) -> bool:
         print("Checking data pin toggling against header...")
         device.write(b'\x20')
         device.write(cartDetails["romtype"])
@@ -83,12 +96,22 @@ class snes_module(Module_Base.scarab_module):
             print("Not toggled high: ", bin(~results[1]))
         if results[1] == 255 and results[0] == 255:
             print("All pins toggled correctly.")
+            return True
+        return False
 
     def calculateChecksum(self, device: serial.Serial, cartDetails: dict):
-        pass
+        device.write(b'\x30')
+        device.write(bytes((cartDetails["romexp"],)))
+        device.write(cartDetails["romtype"])
+        checksum = device.read(2)
+        print(checksum)
+        checksum = f"0x{(checksum[0] << 8) | (checksum[1]):04X}"
+        print(cartDetails["checksum"])
+        print(checksum)
+        return cartDetails["checksum"] == checksum
 
     def testSaveRetention(self, device: serial.Serial, cartDetails: dict):
-        pass
+        return True
 
     def dumpSave(self, device: serial.Serial, cartDetails: dict):
         device.write(b'\x40')

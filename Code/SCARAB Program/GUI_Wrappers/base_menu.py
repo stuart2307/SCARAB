@@ -13,6 +13,9 @@ class base_menu(QMainWindow):
     
     def addScreen(self, screen):
         self.stack.addWidget(screen)
+        
+    def getScreen(self):
+        return self.stack.currentWidget()
 
     def switchScreen(self, screen):
         self.stack.setCurrentWidget(screen)

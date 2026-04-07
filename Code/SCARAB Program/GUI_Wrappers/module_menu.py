@@ -9,4 +9,4 @@ class module_menu(QWidget):
         self.ui.setupUi(self)
         
     def setModule(self, moduleName):
-        self.ui.inserted_module = moduleName
+        self.ui.inserted_module.setText(moduleName)
