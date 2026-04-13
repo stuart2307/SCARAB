@@ -9,7 +9,7 @@ def getBasePath() -> Path:
 
 def getNewSaveFilePath(current_module: str, cartridge_name: str) -> str:
     now = gmtime()
-    game_name = sanitiseString(game_name)
+    game_name = sanitiseString(cartridge_name)
     filename = current_module + "/" + game_name + "/" + game_name + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
     return filename
 
@@ -43,3 +43,15 @@ def readSave(current_module: str, cartridge_name: str, save_name: str) -> bytes:
 
 def sanitiseString(string: str):
     return re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', string.strip())
+
+def retentionWriteTempSave(buffer: bytes, cartridge_name: str):
+    cartridge_name = sanitiseString(cartridge_name)
+    writeSave("TEMP/" + cartridge_name + ".sav", buffer)
+    
+def retentionReadTempSave(cartridge_name: str):
+    cartridge_name = sanitiseString(cartridge_name)
+    path = SAVE_PATH.joinpath("TEST/" + cartridge_name + ".sav")
+    return path.read_bytes()
+
+def deleteSave(filename: str, console: str, game: str):
+    pass

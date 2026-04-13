@@ -5,8 +5,6 @@ from Modules import Module_Base
 import Modules
 import serial, serial.tools.list_ports, time
 
-from SCARAB_Logic import Test_Results
-
 MEGA_IDS = [
     (0x2341, 0x0010),
     (0x2341, 0x0042),
@@ -63,7 +61,14 @@ class scarab_device():
         typeMod = self.scarab.read(8)
         self.scarab.reset_input_buffer()
         typeMod = typeMod.decode(errors="replace").strip()
-        self.currentModule = self.modules[typeMod] or None
+        try :
+            self.currentModule = self.modules[typeMod]
+        except:
+            self.currentModule = None
+        
+    def writeEeprom(self, string):
+        self.scarab.write(b'\x03')
+        self.scarab.write(bytes(string[0:8]))
         
     def dumpSave(self):
         return self.currentModule.dumpSave(self.scarab, self.cartridge)
@@ -71,5 +76,14 @@ class scarab_device():
     def restoreSave(self, buffer: bytes):
         return self.currentModule.restoreSave(self.scarab, self.cartridge, buffer)
     
-    def checkHealth(self, pins, checksum, retention) -> Test_Results.test_result:
-        return self.currentModule.checkHealth(self.scarab, self.cartridge, pins, checksum, retention)
+    #def checkHealth(self, pins, checksum, retention):
+    #    return self.currentModule.checkHealth(self.scarab, self.cartridge, pins, checksum, retention)
+    
+    def testPins(self):
+        return self.currentModule.testPins(self.scarab, self.cartridge)
+    
+    def calcChecksum(self):
+        return self.currentModule.calculateChecksum(self.scarab, self.cartridge)
+    
+    def testRetention(self):
+        return self.currentModule.testSaveRetention(self.scarab, self.cartridge)

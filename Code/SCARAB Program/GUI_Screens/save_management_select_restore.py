@@ -138,6 +138,9 @@ class Ui_select_restore(object):
         self.save_list.setGeometry(QRect(60, 270, 531, 192))
         self.save_list.setFont(font)
         self.save_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.cart_image = QLabel(select_restore)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(50, 70, 240, 180))
 
         self.retranslateUi(select_restore)
 
@@ -151,5 +154,6 @@ class Ui_select_restore(object):
         self.select_save_label.setText(QCoreApplication.translate("select_restore", u"Select Save File", None))
         self.restore_save_button.setText(QCoreApplication.translate("select_restore", u"Restore Save", None))
         self.browse_button.setText(QCoreApplication.translate("select_restore", u"Browse", None))
+        self.cart_image.setText("")
     # retranslateUi
 

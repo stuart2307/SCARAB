@@ -4,7 +4,7 @@ from GUI_Wrappers import *
 from SCARAB_Logic import *
 from PySide6 import QtWidgets
 import threading
-from PySide6.QtCore import QMetaObject, Qt
+from PySide6.QtCore import QMetaObject, Qt, Signal
 
 class SCARABGUI:
     def __init__(self, view: base_menu):
@@ -45,6 +45,11 @@ class SCARABGUI:
         self.view.addScreen(self.sm_select_game)
         self.view.addScreen(self.sm_select_restore)
         
+        self.men_home.setScarabFound(False)
+        self.men_home.setModule("NONE")
+        self.mod_modules.setModule("NONE")
+        self.ch_scanning.ui.unplug_label.setVisible(False)
+        self.ch_scanning.ui.ok_button.setVisible(False)
         self.view.switchScreen(self.men_home)
         
     def configureButtons(self):
@@ -52,6 +57,7 @@ class SCARABGUI:
         self.view.ui.modules_button.clicked.connect(lambda: self.view.switchScreen(self.mod_modules))
         self.view.ui.check_health_button.clicked.connect(lambda: self.view.switchScreen(self.ch_check_health))
         self.view.ui.save_management_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_menu))
+        self.men_home.ui.view_module_button.clicked.connect(lambda: self.view.switchScreen(self.mod_modules))
         self.mod_modules.ui.identify_module_button.clicked.connect(self.identifyModule)
         self.sm_save_menu.ui.browse_saves_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
         self.sm_save_menu.ui.dump_save_button.clicked.connect(self.dumpSave)
@@ -60,7 +66,7 @@ class SCARABGUI:
         self.ch_check_health.ui.check_health_button.clicked.connect(self.checkHealth)
         self.ch_check_health.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_custom_scan))
         self.ch_custom_scan.ui.custom_scan_button.clicked.connect(lambda: self.checkHealth(True))
-        self.sm_select_game.ui.select_game_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
+        self.sm_select_game.ui.select_game_button.clicked.connect(self.prepSaveManager)
         self.sm_select_game.ui.use_inserted_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
         self.view.ui.options_button.clicked.connect(lambda: self.view.switchScreen(self.options))
         self.sm_save_browse.ui.back_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
@@ -73,15 +79,21 @@ class SCARABGUI:
         self.view.switchScreen(self.identifying)
         result = self.scarab.identifyScarab()
         self.men_home.setScarabFound(result)
-        #FIX THIS, HARDCODE BAD
-        self.scarab.currentModule = self.scarab.modules["SNES"]
-        if self.scarab.currentModule is not None and result:
-            self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge)
-            print(self.scarab.cartridge)
-            self.ch_check_health.ui.name.setText(self.scarab.cartridge["name"])
-            self.ch_check_health.ui.rom_size.setText(str(self.scarab.cartridge["romsize"]) + "KB")
-            self.ch_check_health.ui.chipset.setText(self.scarab.cartridge["chipset"])
-            self.ch_check_health.ui.checksum.setText(self.scarab.cartridge["checksum"])
+        if result:
+            self.identifyModule()
+            if self.scarab.currentModule is not None and result:
+                self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge)
+                print(self.scarab.cartridge)
+                self.ch_check_health.ui.name.setText(self.scarab.cartridge["name"])
+                self.ch_check_health.ui.rom_size.setText(str(self.scarab.cartridge["romsize"]) + "KB")
+                self.ch_check_health.ui.chipset.setText(self.scarab.cartridge["chipset"])
+                self.ch_check_health.ui.checksum.setText(self.scarab.cartridge["checksum"])
+            else:
+                self.men_home.setModule("NONE")
+                self.mod_modules.setModule("NONE")
+        else:
+            self.men_home.setModule("NONE")
+            self.mod_modules.setModule("NONE")
         self.view.switchScreen(prev_screen)
         
     def dumpSave(self):
@@ -107,9 +119,17 @@ class SCARABGUI:
         self.sm_restore.restoredSetup()
         
     def identifyModule(self):
-        self.scarab.identifyModule()
-        self.men_home.setModule(self.scarab.currentModule.getIdString())
-        self.mod_modules.setModule(self.scarab.currentModule.getIdString())
+        try:
+            self.scarab.identifyModule()
+            if self.scarab.currentModule is not None:
+                self.men_home.setModule(self.scarab.currentModule.getIdString())
+                self.mod_modules.setModule(self.scarab.currentModule.getIdString())
+            else:
+                self.men_home.setModule("NONE")
+                self.mod_modules.setModule("NONE")
+        except:
+            self.men_home.setModule("NONE")
+            self.mod_modules.setModule("NONE")
         
     def populateSaveLists(self):
         cons = File_Management.getConsolesList()
@@ -119,6 +139,13 @@ class SCARABGUI:
         console = self.sm_select_game.getCurrentConsole()
         games = File_Management.getGamesByConsole(console)
         self.sm_select_game.populateGames(games)
+        
+    def prepSaveManager(self):
+        console = self.sm_select_game.getCurrentConsole()
+        game = self.sm_select_game.getCurrentGame()
+        saves = File_Management.getSavesByGame(console, game)
+        self.sm_save_browse.populateSaves(saves, console)
+        self.view.switchScreen(self.sm_save_browse)
         
     def checkHealth(self, custom=False):
         if custom:
@@ -132,16 +159,21 @@ class SCARABGUI:
             retention = True
             self.ch_scanning.setupCheck(pins, checksum, retention)
         self.view.switchScreen(self.ch_scanning)
-        
-        def worker():
-            results = self.scarab.checkHealth(pins, checksum, retention)
-
-            QMetaObject.invokeMethod(
-                self,
-                lambda: self.ch_scanning.displayResults(results),
-                Qt.QueuedConnection
-            )
-
-        threading.Thread(target=worker, daemon=True).start()
+        if pins:
+            pin_result = self.scarab.testPins()
+            self.ch_scanning.displayResults("pins", pin_result)
+            self.view.repaint()
+        if checksum:
+            checksum_result = self.scarab.calcChecksum()
+            self.ch_scanning.displayResults("checksum", checksum_result)
+            self.view.repaint()
+        if retention:
+            self.ch_scanning.ui
         #results = self.scarab.checkHealth(pins, checksum, retention)
         #self.ch_scanning.displayResults(results)
+        
+    def deleteSave(self):
+        toDelete = self.sm_save_browse.getSelectedSave()
+        console = self.sm_save_browse.current_console
+        File_Management.deleteSave(toDelete, console)
+        

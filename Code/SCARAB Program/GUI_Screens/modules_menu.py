@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'modules_menu.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -139,6 +139,9 @@ class Ui_modules_menu(object):
         self.inserted_module.setGeometry(QRect(340, 340, 161, 41))
         self.inserted_module.setFont(font)
         self.inserted_module.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.mod_image = QLabel(modules_menu)
+        self.mod_image.setObjectName(u"mod_image")
+        self.mod_image.setGeometry(QRect(60, 30, 530, 290))
 
         self.retranslateUi(modules_menu)
 
@@ -153,5 +156,6 @@ class Ui_modules_menu(object):
         self.identify_cart_button.setText(QCoreApplication.translate("modules_menu", u"Identify Cartridge", None))
         self.inserted_game.setText(QCoreApplication.translate("modules_menu", u"NONE", None))
         self.inserted_module.setText(QCoreApplication.translate("modules_menu", u"NONE", None))
+        self.mod_image.setText("")
     # retranslateUi
 

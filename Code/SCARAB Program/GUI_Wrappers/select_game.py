@@ -17,3 +17,6 @@ class select_game(QWidget):
         
     def getCurrentConsole(self):
         return self.ui.console_list.currentIndex().data()
+    
+    def getCurrentGame(self):
+        return self.ui.save_list.currentIndex().data()

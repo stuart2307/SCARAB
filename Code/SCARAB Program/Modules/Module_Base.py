@@ -1,6 +1,5 @@
 import serial
 from abc import ABC, abstractmethod
-from SCARAB_Logic import Test_Results
 
 
 class scarab_module(ABC):
@@ -10,10 +9,6 @@ class scarab_module(ABC):
     
     @abstractmethod
     def detectCartridge(self, device: serial.Serial, cartDetails: dict) -> bool:
-        pass
-    
-    @abstractmethod
-    def checkHealth(self, device: serial.Serial, cartDetails:dict, pins: bool, checksum: bool, retention: bool) -> Test_Results.test_result:
         pass
     
     @abstractmethod

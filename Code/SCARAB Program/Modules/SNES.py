@@ -3,8 +3,6 @@ import serial
 from Modules import Module_Base
 from time import sleep
 
-from SCARAB_Logic import Test_Results
-
 class snes_module(Module_Base.scarab_module):
     SNES_CHIPSET = [
         "ROM Only",
@@ -35,6 +33,7 @@ class snes_module(Module_Base.scarab_module):
         sleep(.2)
         header = device.read(32)
         if len(set(header)) == 1:
+            cartDetails.clear()
             return False
         else:
             if header[21] >> 5 != 1:
@@ -74,15 +73,15 @@ class snes_module(Module_Base.scarab_module):
             cartDetails["checksum"] = f"0x{((header[30]) | header[31] << 8):04X}"
             return True
 
-    def checkHealth(self, device, cartDetails, pins, checksum, retention) -> Test_Results.test_result:
-        results = Test_Results.test_result()
-        if pins:
-            results.pins_ok = self.testPins(device, cartDetails)
-        if checksum:
-            results.checksum_ok = self.calculateChecksum(device, cartDetails)
-        if retention:
-            results.retention_ok = self.testSaveRetention(device, cartDetails)
-        return results
+    #def checkHealth(self, device, cartDetails, pins, checksum, retention) -> Test_Results.test_result:
+    #    results = Test_Results.test_result()
+    #    if pins:
+    #        results.pins_ok = self.testPins(device, cartDetails)
+    #    if checksum:
+    #        results.checksum_ok = self.calculateChecksum(device, cartDetails)
+    #    if retention:
+    #        results.retention_ok = self.testSaveRetention(device, cartDetails)
+    #    return results
 
     def testPins(self, device: serial.Serial, cartDetails: dict) -> bool:
         print("Checking data pin toggling against header...")
@@ -129,8 +128,8 @@ class snes_module(Module_Base.scarab_module):
 
     def restoreSave(self, device: serial.Serial, cartDetails: dict, buffer: bytes):
         device.write(b'\x41')
-        device.write(bytes(cartDetails["savesize"]))
-        device.write(bytes(cartDetails["romtype"]))
+        device.write(bytes((cartDetails["savesize"],)))
+        device.write(cartDetails["romtype"])
         for i in range(0, len(buffer), 32):
             while device.in_waiting < 1:
                 continue
@@ -141,4 +140,6 @@ class snes_module(Module_Base.scarab_module):
                     continue
                 if device.read() != b'K':
                     return False
+            else:
+                return False
         return True

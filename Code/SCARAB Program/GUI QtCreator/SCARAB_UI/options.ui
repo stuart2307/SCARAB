@@ -61,9 +61,9 @@
      <colorrole role="Mid">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>32</red>
-        <green>23</green>
-        <blue>62</blue>
+        <red>200</red>
+        <green>200</green>
+        <blue>200</blue>
        </color>
       </brush>
      </colorrole>
@@ -216,9 +216,9 @@
      <colorrole role="Mid">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>32</red>
-        <green>23</green>
-        <blue>62</blue>
+        <red>200</red>
+        <green>200</green>
+        <blue>200</blue>
        </color>
       </brush>
      </colorrole>
@@ -371,9 +371,9 @@
      <colorrole role="Mid">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>32</red>
-        <green>23</green>
-        <blue>62</blue>
+        <red>200</red>
+        <green>200</green>
+        <blue>200</blue>
        </color>
       </brush>
      </colorrole>
@@ -485,22 +485,148 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <widget class="QLabel" name="placeholder">
+  <widget class="QLabel" name="det_game_label">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>260</y>
-     <width>451</width>
-     <height>91</height>
+     <x>50</x>
+     <y>40</y>
+     <width>271</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>50</pointsize>
+     <pointsize>20</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>Coming Soon...</string>
+    <string>TheGamesDB API Key:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>90</y>
+     <width>541</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="det_game_label_2">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>160</y>
+     <width>371</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Write to New Module EEPROM</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_2">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>210</y>
+     <width>261</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>210</y>
+     <width>161</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Write</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>510</y>
+     <width>191</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Save Settings</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_3">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>510</y>
+     <width>191</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Cancel Changes</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="test_pins_box">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>290</y>
+     <width>341</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+     <kerning>false</kerning>
+    </font>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LayoutDirection::LeftToRight</enum>
+   </property>
+   <property name="text">
+    <string>  Auto-identify on Boot?</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="tristate">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>

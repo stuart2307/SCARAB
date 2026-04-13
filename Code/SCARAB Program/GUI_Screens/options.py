@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'options.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QWidget)
 
 class Ui_options(object):
     def setupUi(self, options):
@@ -33,7 +39,7 @@ class Ui_options(object):
         brush4 = QBrush(QColor(24, 17, 46, 255))
         brush4.setStyle(Qt.BrushStyle.SolidPattern)
         palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Dark, brush4)
-        brush5 = QBrush(QColor(32, 23, 62, 255))
+        brush5 = QBrush(QColor(200, 200, 200, 255))
         brush5.setStyle(Qt.BrushStyle.SolidPattern)
         palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Mid, brush5)
         palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Text, brush)
@@ -105,12 +111,47 @@ class Ui_options(object):
 #endif
         options.setPalette(palette)
         options.setAutoFillBackground(True)
-        self.placeholder = QLabel(options)
-        self.placeholder.setObjectName(u"placeholder")
-        self.placeholder.setGeometry(QRect(100, 260, 451, 91))
+        self.det_game_label = QLabel(options)
+        self.det_game_label.setObjectName(u"det_game_label")
+        self.det_game_label.setGeometry(QRect(50, 40, 271, 41))
         font = QFont()
-        font.setPointSize(50)
-        self.placeholder.setFont(font)
+        font.setPointSize(20)
+        self.det_game_label.setFont(font)
+        self.lineEdit = QLineEdit(options)
+        self.lineEdit.setObjectName(u"lineEdit")
+        self.lineEdit.setGeometry(QRect(50, 90, 541, 41))
+        self.det_game_label_2 = QLabel(options)
+        self.det_game_label_2.setObjectName(u"det_game_label_2")
+        self.det_game_label_2.setGeometry(QRect(50, 160, 371, 41))
+        self.det_game_label_2.setFont(font)
+        self.lineEdit_2 = QLineEdit(options)
+        self.lineEdit_2.setObjectName(u"lineEdit_2")
+        self.lineEdit_2.setGeometry(QRect(50, 210, 261, 41))
+        self.pushButton = QPushButton(options)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setGeometry(QRect(340, 210, 161, 41))
+        font1 = QFont()
+        font1.setPointSize(18)
+        self.pushButton.setFont(font1)
+        self.pushButton_2 = QPushButton(options)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+        self.pushButton_2.setGeometry(QRect(120, 510, 191, 51))
+        self.pushButton_2.setFont(font1)
+        self.pushButton_3 = QPushButton(options)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+        self.pushButton_3.setGeometry(QRect(340, 510, 191, 51))
+        self.pushButton_3.setFont(font1)
+        self.test_pins_box = QCheckBox(options)
+        self.test_pins_box.setObjectName(u"test_pins_box")
+        self.test_pins_box.setGeometry(QRect(170, 290, 341, 41))
+        font2 = QFont()
+        font2.setPointSize(20)
+        font2.setKerning(False)
+        self.test_pins_box.setFont(font2)
+        self.test_pins_box.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.test_pins_box.setIconSize(QSize(32, 32))
+        self.test_pins_box.setChecked(False)
+        self.test_pins_box.setTristate(False)
 
         self.retranslateUi(options)
 
@@ -119,6 +160,11 @@ class Ui_options(object):
 
     def retranslateUi(self, options):
         options.setWindowTitle(QCoreApplication.translate("options", u"Frame", None))
-        self.placeholder.setText(QCoreApplication.translate("options", u"Coming Soon...", None))
+        self.det_game_label.setText(QCoreApplication.translate("options", u"TheGamesDB API Key:", None))
+        self.det_game_label_2.setText(QCoreApplication.translate("options", u"Write to New Module EEPROM", None))
+        self.pushButton.setText(QCoreApplication.translate("options", u"Write", None))
+        self.pushButton_2.setText(QCoreApplication.translate("options", u"Save Settings", None))
+        self.pushButton_3.setText(QCoreApplication.translate("options", u"Cancel Changes", None))
+        self.test_pins_box.setText(QCoreApplication.translate("options", u"  Auto-identify on Boot?", None))
     # retranslateUi
 

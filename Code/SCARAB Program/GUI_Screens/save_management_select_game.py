@@ -143,6 +143,10 @@ class Ui_select_game(object):
         self.console_list.setGeometry(QRect(360, 80, 231, 141))
         self.console_list.setFont(font)
         self.console_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.detected_game = QLabel(select_game)
+        self.detected_game.setObjectName(u"detected_game")
+        self.detected_game.setGeometry(QRect(230, 10, 391, 41))
+        self.detected_game.setFont(font)
 
         self.retranslateUi(select_game)
 
@@ -156,5 +160,6 @@ class Ui_select_game(object):
         self.select_game_label.setText(QCoreApplication.translate("select_game", u"Select a Game", None))
         self.select_console_label.setText(QCoreApplication.translate("select_game", u"Select a Console:", None))
         self.use_inserted_button.setText(QCoreApplication.translate("select_game", u"Use Inserted Game", None))
+        self.detected_game.setText("")
     # retranslateUi
 

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main_menu.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -141,6 +141,9 @@ class Ui_main_menu(object):
         self.inserted_module.setGeometry(QRect(340, 380, 161, 41))
         self.inserted_module.setFont(font)
         self.inserted_module.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scarab_image = QLabel(main_menu)
+        self.scarab_image.setObjectName(u"scarab_image")
+        self.scarab_image.setGeometry(QRect(60, 30, 530, 290))
 
         self.retranslateUi(main_menu)
 
@@ -155,5 +158,6 @@ class Ui_main_menu(object):
         self.view_module_button.setText(QCoreApplication.translate("main_menu", u"View Module", None))
         self.scarab_status.setText(QCoreApplication.translate("main_menu", u"NOT FOUND", None))
         self.inserted_module.setText(QCoreApplication.translate("main_menu", u"NONE", None))
+        self.scarab_image.setText("")
     # retranslateUi
 

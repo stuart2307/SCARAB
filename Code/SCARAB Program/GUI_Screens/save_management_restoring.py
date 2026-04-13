@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'save_management_restoring.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QSizePolicy,
+    QWidget)
 
 class Ui_restoring_save(object):
     def setupUi(self, restoring_save):
@@ -105,12 +111,12 @@ class Ui_restoring_save(object):
 #endif
         restoring_save.setPalette(palette)
         restoring_save.setAutoFillBackground(True)
-        self.restoring_label = QLabel(restoring_save)
-        self.restoring_label.setObjectName(u"restoring_label")
-        self.restoring_label.setGeometry(QRect(160, 270, 321, 51))
+        self.path_label = QLabel(restoring_save)
+        self.path_label.setObjectName(u"path_label")
+        self.path_label.setGeometry(QRect(160, 270, 321, 51))
         font = QFont()
         font.setPointSize(20)
-        self.restoring_label.setFont(font)
+        self.path_label.setFont(font)
         self.save_path = QLabel(restoring_save)
         self.save_path.setObjectName(u"save_path")
         self.save_path.setGeometry(QRect(20, 330, 601, 31))
@@ -129,6 +135,9 @@ class Ui_restoring_save(object):
         self.game_details.setObjectName(u"game_details")
         self.game_details.setGeometry(QRect(340, 50, 261, 141))
         self.game_details.setFont(font)
+        self.cart_image = QLabel(restoring_save)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(50, 70, 240, 180))
 
         self.retranslateUi(restoring_save)
 
@@ -137,10 +146,11 @@ class Ui_restoring_save(object):
 
     def retranslateUi(self, restoring_save):
         restoring_save.setWindowTitle(QCoreApplication.translate("restoring_save", u"Frame", None))
-        self.restoring_label.setText(QCoreApplication.translate("restoring_save", u"Restoring Save Data From:", None))
+        self.path_label.setText(QCoreApplication.translate("restoring_save", u"Restoring Save Data From:", None))
         self.save_path.setText("")
         self.det_game_label.setText(QCoreApplication.translate("restoring_save", u"Detected Game:", None))
         self.details.setText(QCoreApplication.translate("restoring_save", u"Please Wait...", None))
         self.game_details.setText("")
+        self.cart_image.setText("")
     # retranslateUi
 

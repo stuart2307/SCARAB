@@ -187,6 +187,9 @@ class Ui_check_health_menu(object):
 
         self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.checksum)
 
+        self.cart_image = QLabel(check_health_menu)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(190, 70, 266, 200))
 
         self.retranslateUi(check_health_menu)
 
@@ -201,10 +204,11 @@ class Ui_check_health_menu(object):
         self.name_label.setText(QCoreApplication.translate("check_health_menu", u"Name:", None))
         self.rom_sz_label.setText(QCoreApplication.translate("check_health_menu", u"ROM Size:", None))
         self.chip_label.setText(QCoreApplication.translate("check_health_menu", u"Chipset:", None))
-        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_menu", u"Checksum:", None))
+        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_menu", u"Header Checksum:", None))
         self.name.setText("")
         self.rom_size.setText("")
         self.chipset.setText("")
         self.checksum.setText("")
+        self.cart_image.setText("")
     # retranslateUi
 

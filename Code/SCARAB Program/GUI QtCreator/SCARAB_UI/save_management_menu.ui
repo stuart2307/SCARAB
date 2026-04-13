@@ -575,6 +575,19 @@
     <string>Dump Save Data</string>
    </property>
   </widget>
+  <widget class="QLabel" name="cart_image">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>90</y>
+     <width>320</width>
+     <height>240</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

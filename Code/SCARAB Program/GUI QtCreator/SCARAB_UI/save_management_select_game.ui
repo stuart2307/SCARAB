@@ -611,6 +611,24 @@
     <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
    </property>
   </widget>
+  <widget class="QLabel" name="detected_game">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>10</y>
+     <width>391</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

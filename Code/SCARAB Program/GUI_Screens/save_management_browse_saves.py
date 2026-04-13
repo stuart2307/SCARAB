@@ -132,7 +132,7 @@ class Ui_browse_saves(object):
         self.select_save_label.setFont(font)
         self.game_details = QLabel(browse_saves)
         self.game_details.setObjectName(u"game_details")
-        self.game_details.setGeometry(QRect(340, 50, 261, 141))
+        self.game_details.setGeometry(QRect(360, 50, 261, 141))
         self.game_details.setFont(font)
         self.back_button = QPushButton(browse_saves)
         self.back_button.setObjectName(u"back_button")
@@ -142,6 +142,9 @@ class Ui_browse_saves(object):
         self.delete_button.setObjectName(u"delete_button")
         self.delete_button.setGeometry(QRect(420, 480, 171, 71))
         self.delete_button.setFont(font)
+        self.cart_image = QLabel(browse_saves)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(50, 70, 240, 180))
 
         self.retranslateUi(browse_saves)
 
@@ -156,5 +159,6 @@ class Ui_browse_saves(object):
         self.game_details.setText("")
         self.back_button.setText(QCoreApplication.translate("browse_saves", u"Back", None))
         self.delete_button.setText(QCoreApplication.translate("browse_saves", u"Delete", None))
+        self.cart_image.setText("")
     # retranslateUi
 

@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from GUI_Screens import modules_menu
 from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QPixmap
 
 class module_menu(QWidget):
     def __init__(self):
@@ -10,3 +13,5 @@ class module_menu(QWidget):
         
     def setModule(self, moduleName):
         self.ui.inserted_module.setText(moduleName)
+        filepath = Path(__file__).parent.parent.joinpath("Images/Modules/" + moduleName + ".png")
+        self.ui.mod_image.setPixmap(QPixmap(filepath))

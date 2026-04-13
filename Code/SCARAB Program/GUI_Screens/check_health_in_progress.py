@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'check_health_in_progress.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QPushButton,
+    QSizePolicy, QWidget)
 
 class Ui_check_health_in_progress(object):
     def setupUi(self, check_health_in_progress):
@@ -133,7 +139,7 @@ class Ui_check_health_in_progress(object):
         self.test_pins.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.tst_sv_ret_label = QLabel(check_health_in_progress)
         self.tst_sv_ret_label.setObjectName(u"tst_sv_ret_label")
-        self.tst_sv_ret_label.setGeometry(QRect(70, 400, 251, 41))
+        self.tst_sv_ret_label.setGeometry(QRect(80, 400, 241, 41))
         self.tst_sv_ret_label.setFont(font)
         self.tst_sv_ret_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.id_corr_label = QLabel(check_health_in_progress)
@@ -148,13 +154,27 @@ class Ui_check_health_in_progress(object):
         self.test_pins_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.vrfy_chksum_label = QLabel(check_health_in_progress)
         self.vrfy_chksum_label.setObjectName(u"vrfy_chksum_label")
-        self.vrfy_chksum_label.setGeometry(QRect(110, 320, 211, 41))
+        self.vrfy_chksum_label.setGeometry(QRect(120, 320, 201, 41))
         self.vrfy_chksum_label.setFont(font)
         self.vrfy_chksum_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.warning_label = QLabel(check_health_in_progress)
         self.warning_label.setObjectName(u"warning_label")
         self.warning_label.setGeometry(QRect(30, 490, 601, 71))
         self.warning_label.setFont(font)
+        self.cart_image = QLabel(check_health_in_progress)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(190, 70, 266, 200))
+        self.unplug_label = QLabel(check_health_in_progress)
+        self.unplug_label.setObjectName(u"unplug_label")
+        self.unplug_label.setGeometry(QRect(30, 410, 591, 151))
+        self.unplug_label.setFont(font)
+        self.unplug_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.unplug_label.setWordWrap(True)
+        self.ok_button = QPushButton(check_health_in_progress)
+        self.ok_button.setObjectName(u"ok_button")
+        self.ok_button.setEnabled(True)
+        self.ok_button.setGeometry(QRect(280, 530, 81, 51))
+        self.ok_button.setFont(font)
 
         self.retranslateUi(check_health_in_progress)
 
@@ -173,5 +193,8 @@ class Ui_check_health_in_progress(object):
         self.test_pins_label.setText(QCoreApplication.translate("check_health_in_progress", u"Test Pins:", None))
         self.vrfy_chksum_label.setText(QCoreApplication.translate("check_health_in_progress", u"Verify Checksum:", None))
         self.warning_label.setText(QCoreApplication.translate("check_health_in_progress", u"DO NOT UNPLUG THE SCARAB OR ANY MODULES", None))
+        self.cart_image.setText("")
+        self.unplug_label.setText(QCoreApplication.translate("check_health_in_progress", u"Please Unplug the USB-C Power Cable from the SCARAB, and hit OK.", None))
+        self.ok_button.setText(QCoreApplication.translate("check_health_in_progress", u"OK", None))
     # retranslateUi
 

@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'save_management_menu.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QLabel, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QPushButton,
+    QSizePolicy, QWidget)
 
 class Ui_save_management(object):
     def setupUi(self, save_management):
@@ -115,10 +121,10 @@ class Ui_save_management(object):
         self.browse_saves_button.setObjectName(u"browse_saves_button")
         self.browse_saves_button.setGeometry(QRect(60, 470, 261, 71))
         self.browse_saves_button.setFont(font)
-        self.identify_cart_button = QPushButton(save_management)
-        self.identify_cart_button.setObjectName(u"identify_cart_button")
-        self.identify_cart_button.setGeometry(QRect(340, 470, 251, 71))
-        self.identify_cart_button.setFont(font)
+        self.custom_scan_button = QPushButton(save_management)
+        self.custom_scan_button.setObjectName(u"custom_scan_button")
+        self.custom_scan_button.setGeometry(QRect(340, 470, 251, 71))
+        self.custom_scan_button.setFont(font)
         self.restore_save_button = QPushButton(save_management)
         self.restore_save_button.setObjectName(u"restore_save_button")
         self.restore_save_button.setGeometry(QRect(340, 380, 251, 71))
@@ -127,6 +133,9 @@ class Ui_save_management(object):
         self.dump_save_button.setObjectName(u"dump_save_button")
         self.dump_save_button.setGeometry(QRect(60, 380, 261, 71))
         self.dump_save_button.setFont(font)
+        self.cart_image = QLabel(save_management)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(170, 90, 320, 240))
 
         self.retranslateUi(save_management)
 
@@ -137,8 +146,9 @@ class Ui_save_management(object):
         save_management.setWindowTitle(QCoreApplication.translate("save_management", u"Frame", None))
         self.det_game_label.setText(QCoreApplication.translate("save_management", u"Detected Game:", None))
         self.browse_saves_button.setText(QCoreApplication.translate("save_management", u"Browse Save Files", None))
-        self.identify_cart_button.setText(QCoreApplication.translate("save_management", u"Identify Cartridge", None))
+        self.custom_scan_button.setText(QCoreApplication.translate("save_management", u"Identify Cartridge", None))
         self.restore_save_button.setText(QCoreApplication.translate("save_management", u"Restore Save Data", None))
         self.dump_save_button.setText(QCoreApplication.translate("save_management", u"Dump Save Data", None))
+        self.cart_image.setText("")
     # retranslateUi
 

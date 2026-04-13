@@ -255,14 +255,7 @@ void loop() {
         Serial.write(lower);
         break;
       }
-      case 0x3F: {
-        while(Serial.available() < 2){}
-        uint8_t romPow = Serial.read();
-        char romType = Serial.read();
-        uint64_t romSize = 1024UL << romPow;
-        tempSnesDump(romSize, romType);
-        break;
-      }
+        
       case 0x40:{
         while(Serial.available() < 2){}
         uint8_t ramPow = Serial.read();

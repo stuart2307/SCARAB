@@ -3,14 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'check_health_custom_scan.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, QSize, Qt)
-from PySide6.QtGui import (QBrush, QColor, QFont, QPalette)
-from PySide6.QtWidgets import (QCheckBox, QLabel, QPushButton)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QLabel,
+    QPushButton, QSizePolicy, QWidget)
 
 class Ui_check_health_custom_scan(object):
     def setupUi(self, check_health_custom_scan):
@@ -117,26 +123,26 @@ class Ui_check_health_custom_scan(object):
         self.custom_scan_button.setObjectName(u"custom_scan_button")
         self.custom_scan_button.setGeometry(QRect(200, 470, 251, 71))
         self.custom_scan_button.setFont(font)
-        self.tst_pin_label = QLabel(check_health_custom_scan)
-        self.tst_pin_label.setObjectName(u"tst_pin_label")
-        self.tst_pin_label.setGeometry(QRect(160, 290, 201, 41))
-        self.tst_pin_label.setFont(font)
-        self.tst_pin_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.checksum_label = QLabel(check_health_custom_scan)
-        self.checksum_label.setObjectName(u"checksum_label")
-        self.checksum_label.setGeometry(QRect(150, 330, 211, 41))
-        self.checksum_label.setFont(font)
-        self.checksum_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.id_corr_label = QLabel(check_health_custom_scan)
-        self.id_corr_label.setObjectName(u"id_corr_label")
-        self.id_corr_label.setGeometry(QRect(120, 370, 241, 41))
-        self.id_corr_label.setFont(font)
-        self.id_corr_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-        self.save_check_label = QLabel(check_health_custom_scan)
-        self.save_check_label.setObjectName(u"save_check_label")
-        self.save_check_label.setGeometry(QRect(110, 410, 251, 41))
-        self.save_check_label.setFont(font)
-        self.save_check_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.name_label = QLabel(check_health_custom_scan)
+        self.name_label.setObjectName(u"name_label")
+        self.name_label.setGeometry(QRect(160, 290, 201, 41))
+        self.name_label.setFont(font)
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.rom_sz_label = QLabel(check_health_custom_scan)
+        self.rom_sz_label.setObjectName(u"rom_sz_label")
+        self.rom_sz_label.setGeometry(QRect(160, 330, 201, 41))
+        self.rom_sz_label.setFont(font)
+        self.rom_sz_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.chip_label = QLabel(check_health_custom_scan)
+        self.chip_label.setObjectName(u"chip_label")
+        self.chip_label.setGeometry(QRect(120, 370, 241, 41))
+        self.chip_label.setFont(font)
+        self.chip_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.hdr_chk_label = QLabel(check_health_custom_scan)
+        self.hdr_chk_label.setObjectName(u"hdr_chk_label")
+        self.hdr_chk_label.setGeometry(QRect(120, 410, 241, 41))
+        self.hdr_chk_label.setFont(font)
+        self.hdr_chk_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.test_pins_box = QCheckBox(check_health_custom_scan)
         self.test_pins_box.setObjectName(u"test_pins_box")
         self.test_pins_box.setGeometry(QRect(380, 300, 20, 31))
@@ -165,6 +171,12 @@ class Ui_check_health_custom_scan(object):
         self.test_save_box.setIconSize(QSize(32, 32))
         self.test_save_box.setChecked(False)
         self.test_save_box.setTristate(False)
+        self.label = QLabel(check_health_custom_scan)
+        self.label.setObjectName(u"label")
+        self.label.setGeometry(QRect(190, 80, 266, 200))
+        self.cart_image = QLabel(check_health_custom_scan)
+        self.cart_image.setObjectName(u"cart_image")
+        self.cart_image.setGeometry(QRect(190, 70, 266, 200))
 
         self.retranslateUi(check_health_custom_scan)
 
@@ -175,13 +187,15 @@ class Ui_check_health_custom_scan(object):
         check_health_custom_scan.setWindowTitle(QCoreApplication.translate("check_health_custom_scan", u"Frame", None))
         self.det_game_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Detected Game:", None))
         self.custom_scan_button.setText(QCoreApplication.translate("check_health_custom_scan", u"Check Health", None))
-        self.tst_pin_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Test Pins:", None))
-        self.checksum_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Verify Checksum:", None))
-        self.id_corr_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Identify Corruption:", None))
-        self.save_check_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Test Save Retention:", None))
+        self.name_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Test Pins:", None))
+        self.rom_sz_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Verify Checksum:", None))
+        self.chip_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Identify Corruption:", None))
+        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_custom_scan", u"Test Save Retention:", None))
         self.test_pins_box.setText("")
         self.checksum_box.setText("")
         self.corruption_box.setText("")
         self.test_save_box.setText("")
+        self.label.setText("")
+        self.cart_image.setText("")
     # retranslateUi
 

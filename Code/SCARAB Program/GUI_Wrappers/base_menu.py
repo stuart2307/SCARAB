@@ -19,6 +19,7 @@ class base_menu(QMainWindow):
 
     def switchScreen(self, screen):
         self.stack.setCurrentWidget(screen)
+        self.repaint()
 
     def disableHomeButton(self):
         self.ui.home_button.setDisabled(True)
