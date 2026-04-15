@@ -83,14 +83,8 @@ uint16_t calcSnesChecksum(uint64_t romSize, char romLayout) {
     case 'L': {
       for (uint64_t x = 0; x < romSize; x++) {
         uint8_t bank = (x / 0x8000) + 0x80;
-        //if (x%0x8000 == 0) {
-        //    Serial.print("Bank: ");
-        //    Serial.print(bank, HEX);
-        //    Serial.println();
-        //  }
         uint16_t address = (x % 0x8000) + 0x8000;
         crc += readSnesCartridge(bank, address);
-        delayMicroseconds(5);
       }
       break;
     }
@@ -117,11 +111,16 @@ void writeSnesCartridge(uint8_t bank, uint16_t address, uint8_t byte) {
   A8to15 = (address >> 8) & 0xFF;
   A0to7 = address & 0xFF;
   D0toD7OUT = byte;
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   WRITE_LOW;
-  delayMicroseconds(3);
+  NOP;
+  NOP;
+  NOP;
+  NOP;
+  NOP;
+  NOP;
   WRITE_HIGH;
-  delayMicroseconds(2);
+  delayMicroseconds(1);
 }
 
 void dumpSnesSave(uint64_t saveSize, char romLayout) {

@@ -15,3 +15,6 @@ class module_menu(QWidget):
         self.ui.inserted_module.setText(moduleName)
         filepath = Path(__file__).parent.parent.joinpath("Images/Modules/" + moduleName + ".png")
         self.ui.mod_image.setPixmap(QPixmap(filepath))
+        
+    def setGame(self, gameName):
+        self.ui.inserted_game.setText(gameName)

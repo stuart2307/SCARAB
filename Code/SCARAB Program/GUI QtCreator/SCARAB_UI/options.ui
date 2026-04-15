@@ -485,7 +485,7 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <widget class="QLabel" name="det_game_label">
+  <widget class="QLabel" name="api_key_label">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -503,7 +503,7 @@
     <string>TheGamesDB API Key:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="api_key">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -513,7 +513,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="det_game_label_2">
+  <widget class="QLabel" name="mod_write_label">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -531,7 +531,7 @@
     <string>Write to New Module EEPROM</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_2">
+  <widget class="QLineEdit" name="module_write">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -540,8 +540,11 @@
      <height>41</height>
     </rect>
    </property>
+   <property name="maxLength">
+    <number>8</number>
+   </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="write_to_eeprom">
    <property name="geometry">
     <rect>
      <x>340</x>
@@ -559,7 +562,7 @@
     <string>Write</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="save_settings">
    <property name="geometry">
     <rect>
      <x>120</x>
@@ -577,7 +580,7 @@
     <string>Save Settings</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="cancel_changes">
    <property name="geometry">
     <rect>
      <x>340</x>
@@ -595,7 +598,7 @@
     <string>Cancel Changes</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="test_pins_box">
+  <widget class="QCheckBox" name="auto_id_box">
    <property name="geometry">
     <rect>
      <x>170</x>

@@ -7,3 +7,9 @@ class check_health(QWidget):
 
         self.ui = check_health_menu.Ui_check_health_menu()
         self.ui.setupUi(self)
+        
+    def setGame(self, name, romsize, chipset, checksum):
+        self.ui.name.setText(name)
+        self.ui.rom_size.setText(romsize)
+        self.ui.chipset.setText(chipset)
+        self.ui.checksum.setText(checksum)

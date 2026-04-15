@@ -1,5 +1,6 @@
 from GUI_Screens import base
 from PySide6.QtWidgets import QMainWindow, QWidget, QStackedWidget
+from PySide6.QtCore import QTimer
 
 class base_menu(QMainWindow):
     def __init__(self):
@@ -7,6 +8,7 @@ class base_menu(QMainWindow):
 
         self.ui = base.Ui_SCARAB_MENU()
         self.ui.setupUi(self)
+        self.ui.message_banner.setVisible(False)
 
         self.stack = QStackedWidget(self.ui.content_frame)
         self.stack.setGeometry(self.ui.content_frame.rect())
@@ -50,3 +52,8 @@ class base_menu(QMainWindow):
 
     def enableOptionsButton(self):
         self.ui.options_button.setDisabled(False)
+        
+    def displayMessage(self, message: str, is_error: bool = False):
+        self.ui.message.setText(("ERROR: " if is_error else "") + message)
+        self.ui.message_banner.setVisible(True)
+        QTimer.singleShot(5000, lambda: self.ui.message_banner.setVisible(False))

@@ -1,7 +1,6 @@
 import serial
 
 from Modules import Module_Base
-from time import sleep
 
 class snes_module(Module_Base.scarab_module):
     SNES_CHIPSET = [
@@ -30,7 +29,6 @@ class snes_module(Module_Base.scarab_module):
     
     def detectCartridge(self, device: serial.Serial, cartDetails: dict) -> bool:
         device.write(b'\x11')
-        sleep(.2)
         header = device.read(32)
         if len(set(header)) == 1:
             cartDetails.clear()
@@ -40,7 +38,6 @@ class snes_module(Module_Base.scarab_module):
                 cartDetails["name"] = header[0:22].decode(errors="replace").strip()
                 #print("Name: ", currentRom)
                 device.write(b'\x12')
-                sleep(0.2)
                 cartDetails["romtype"] = device.read()
                 device.reset_input_buffer()
                 print("Rom Type: ", cartDetails["romtype"])
@@ -66,22 +63,14 @@ class snes_module(Module_Base.scarab_module):
             cartDetails["romexp"] = header[23]
             #print("ROM Size: ", 1 << header[23], "KB")
             if "RAM" not in cartDetails["chipset"]:
+                cartDetails["saveexp"] = 0
                 cartDetails["savesize"] = 0
             else:
-                cartDetails["savesize"] = header[24]
+                cartDetails["saveexp"] = header[24]
+                cartDetails["savesize"] = 1024 * (1 << header[24])
             #print("RAM Size: ", 1 << header[24], "KB")
             cartDetails["checksum"] = f"0x{((header[30]) | header[31] << 8):04X}"
             return True
-
-    #def checkHealth(self, device, cartDetails, pins, checksum, retention) -> Test_Results.test_result:
-    #    results = Test_Results.test_result()
-    #    if pins:
-    #        results.pins_ok = self.testPins(device, cartDetails)
-    #    if checksum:
-    #        results.checksum_ok = self.calculateChecksum(device, cartDetails)
-    #    if retention:
-    #        results.retention_ok = self.testSaveRetention(device, cartDetails)
-    #    return results
 
     def testPins(self, device: serial.Serial, cartDetails: dict) -> bool:
         print("Checking data pin toggling against header...")
@@ -114,21 +103,16 @@ class snes_module(Module_Base.scarab_module):
 
     def dumpSave(self, device: serial.Serial, cartDetails: dict):
         device.write(b'\x40')
-        device.write(bytes((cartDetails["savesize"],)))
+        device.write(bytes((cartDetails["saveexp"],)))
         device.write(cartDetails["romtype"])
-        ramSize = 1024*(1 << int(cartDetails["savesize"]))
-        #now = gmtime()
-        #gameName = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', cartDetails["name"].strip())
-        #filename = "Saves/SNES/" + gameName + "/" + gameName + "_" + str(now.tm_mday) + "_" + str(now.tm_mon) + "_" + str(now.tm_year) + "_" + str(now.tm_hour) + "_" + str(now.tm_min) + "_" + str(now.tm_sec) + ".sav"
+        ramSize = 1024*(1 << int(cartDetails["saveexp"]))
         buffer = device.read_until(expected= bytes("SCARABSAVEDATA", "utf-8", "replace"),size=ramSize)
         print(len(buffer))
         return buffer
-        #print("Buffer in!")
-        #print("Saved as " + filename)
 
     def restoreSave(self, device: serial.Serial, cartDetails: dict, buffer: bytes):
         device.write(b'\x41')
-        device.write(bytes((cartDetails["savesize"],)))
+        device.write(bytes((cartDetails["saveexp"],)))
         device.write(cartDetails["romtype"])
         for i in range(0, len(buffer), 32):
             while device.in_waiting < 1:

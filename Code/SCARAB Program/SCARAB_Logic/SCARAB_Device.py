@@ -63,7 +63,7 @@ class scarab_device():
         typeMod = typeMod.decode(errors="replace").strip()
         try :
             self.currentModule = self.modules[typeMod]
-        except:
+        except KeyError as e:
             self.currentModule = None
         
     def writeEeprom(self, string):

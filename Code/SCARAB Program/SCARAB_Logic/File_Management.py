@@ -1,8 +1,11 @@
 from pathlib import Path
+import random
 import re
 from time import gmtime
+import configparser
 
 SAVE_PATH = Path(__file__).parent.parent.joinpath("Saves")
+SETTINGS_PATH = Path(__file__).parent.parent.joinpath("settings.ini")
 
 def getBasePath() -> Path:
     return SAVE_PATH
@@ -54,4 +57,30 @@ def retentionReadTempSave(cartridge_name: str):
     return path.read_bytes()
 
 def deleteSave(filename: str, console: str, game: str):
-    pass
+    save_path = SAVE_PATH.joinpath(getExistingSaveFilePath(console, game, filename))
+    save_path.unlink(True)
+
+def generateDummySave(size) -> bytes:
+    random.seed()
+    return bytes(random.getrandbits(8) for _ in range(size))
+
+def generateSettings():
+    if not Path(SETTINGS_PATH).exists():
+        settings = configparser.ConfigParser()
+        settings['API'] = {'gamesdbapikey': ''}
+        settings['SCARAB'] = {'autoid': 'no'}
+        with open(SETTINGS_PATH, "w") as ini:
+            settings.write(ini)
+            
+def getSettings():
+    generateSettings()
+    settings = configparser.ConfigParser()
+    settings.read(SETTINGS_PATH)
+    return {s: dict(settings[s]) for s in settings.sections()}
+
+def saveSettings(new_settings: dict):
+    settings = configparser.ConfigParser()
+    for section, sec_settings in new_settings.items():
+        settings[section] = sec_settings
+    with open(SETTINGS_PATH, "w") as ini:
+        settings.write(ini)

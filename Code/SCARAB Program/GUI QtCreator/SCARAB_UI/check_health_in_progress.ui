@@ -674,8 +674,8 @@
   <widget class="QLabel" name="warning_label">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>490</y>
+     <x>20</x>
+     <y>430</y>
      <width>601</width>
      <height>71</height>
     </rect>
@@ -726,7 +726,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="ok_button">
+  <widget class="QPushButton" name="ok_button_pre">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -747,6 +747,151 @@
     <string>OK</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="ok_button_post">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>530</y>
+     <width>81</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="replug_label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>450</y>
+     <width>591</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Please plug the USB-C Power Cable back into the SCARAB Device, and hit OK.</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignCenter</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="dyk_label">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>490</y>
+     <width>181</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Did you know?</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="didyouknow">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>530</y>
+     <width>521</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="complete_label">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>470</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Health Check Complete</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="ok_button_done">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>530</y>
+     <width>81</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+  </widget>
+  <zorder>ok_button_done</zorder>
+  <zorder>det_game_label</zorder>
+  <zorder>verify_checksum</zorder>
+  <zorder>test_save_retention</zorder>
+  <zorder>identify_corruption</zorder>
+  <zorder>test_pins</zorder>
+  <zorder>tst_sv_ret_label</zorder>
+  <zorder>id_corr_label</zorder>
+  <zorder>test_pins_label</zorder>
+  <zorder>vrfy_chksum_label</zorder>
+  <zorder>cart_image</zorder>
+  <zorder>unplug_label</zorder>
+  <zorder>ok_button_pre</zorder>
+  <zorder>ok_button_post</zorder>
+  <zorder>replug_label</zorder>
+  <zorder>warning_label</zorder>
+  <zorder>dyk_label</zorder>
+  <zorder>didyouknow</zorder>
+  <zorder>complete_label</zorder>
  </widget>
  <resources/>
  <connections/>

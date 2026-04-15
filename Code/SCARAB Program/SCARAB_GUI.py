@@ -1,20 +1,21 @@
-from time import sleep
+import random
 
 from GUI_Wrappers import *
 from SCARAB_Logic import *
-from PySide6 import QtWidgets
-import threading
-from PySide6.QtCore import QMetaObject, Qt, Signal
+from PySide6.QtCore import QTimer
 
 class SCARABGUI:
     def __init__(self, view: base_menu):
         super().__init__()
         self.view = view
+        self.game_image_manager = Game_Imagery()
         self.setupScreens()
         self.populateSaveLists()
         self.configureButtons()
+        self.getSettings()
         self.scarab = SCARAB_Device.scarab_device()
-        
+        if self.settings["SCARAB"]["autoid"] == 'yes':
+            QTimer.singleShot(100, self.identifyScarab)
 
     def setupScreens(self):
         self.men_home = main_menu_screen()
@@ -48,8 +49,6 @@ class SCARABGUI:
         self.men_home.setScarabFound(False)
         self.men_home.setModule("NONE")
         self.mod_modules.setModule("NONE")
-        self.ch_scanning.ui.unplug_label.setVisible(False)
-        self.ch_scanning.ui.ok_button.setVisible(False)
         self.view.switchScreen(self.men_home)
         
     def configureButtons(self):
@@ -59,6 +58,7 @@ class SCARABGUI:
         self.view.ui.save_management_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_menu))
         self.men_home.ui.view_module_button.clicked.connect(lambda: self.view.switchScreen(self.mod_modules))
         self.mod_modules.ui.identify_module_button.clicked.connect(self.identifyModule)
+        self.mod_modules.ui.identify_cart_button.clicked.connect(self.detectCartridge)
         self.sm_save_menu.ui.browse_saves_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
         self.sm_save_menu.ui.dump_save_button.clicked.connect(self.dumpSave)
         self.sm_save_menu.ui.restore_save_button.clicked.connect(self.switchRestore)
@@ -67,12 +67,17 @@ class SCARABGUI:
         self.ch_check_health.ui.custom_scan_button.clicked.connect(lambda: self.view.switchScreen(self.ch_custom_scan))
         self.ch_custom_scan.ui.custom_scan_button.clicked.connect(lambda: self.checkHealth(True))
         self.sm_select_game.ui.select_game_button.clicked.connect(self.prepSaveManager)
-        self.sm_select_game.ui.use_inserted_button.clicked.connect(lambda: self.view.switchScreen(self.sm_save_browse))
+        self.sm_select_game.ui.use_inserted_button.clicked.connect(lambda: self.prepSaveManager(True))
         self.view.ui.options_button.clicked.connect(lambda: self.view.switchScreen(self.options))
         self.sm_save_browse.ui.back_button.clicked.connect(lambda: self.view.switchScreen(self.sm_select_game))
         self.sm_select_game.ui.console_list.selectionModel().selectionChanged.connect(self.popGamesByConsole)
-        
+        self.ch_scanning.ui.ok_button_pre.clicked.connect(self.saveRetentionPreWait)
+        self.ch_scanning.ui.ok_button_post.clicked.connect(self.saveRetentionFinal)
+        self.ch_scanning.ui.ok_button_done.clicked.connect(lambda: self.view.switchScreen(self.ch_check_health))
+        self.sm_save_browse.ui.delete_button.clicked.connect(self.deleteSave)
         self.men_home.ui.re_identify_button.clicked.connect(self.identifyScarab)
+        self.options.ui.save_settings.clicked.connect(self.saveSettings)
+        self.options.ui.cancel_changes.clicked.connect(self.getSettings)
 
     def identifyScarab(self):
         prev_screen = self.view.getScreen()
@@ -81,23 +86,44 @@ class SCARABGUI:
         self.men_home.setScarabFound(result)
         if result:
             self.identifyModule()
-            if self.scarab.currentModule is not None and result:
-                self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge)
-                print(self.scarab.cartridge)
-                self.ch_check_health.ui.name.setText(self.scarab.cartridge["name"])
-                self.ch_check_health.ui.rom_size.setText(str(self.scarab.cartridge["romsize"]) + "KB")
-                self.ch_check_health.ui.chipset.setText(self.scarab.cartridge["chipset"])
-                self.ch_check_health.ui.checksum.setText(self.scarab.cartridge["checksum"])
-            else:
-                self.men_home.setModule("NONE")
-                self.mod_modules.setModule("NONE")
+            self.detectCartridge()
         else:
+            self.view.displayMessage("SCARAB not found.", is_error=True)
             self.men_home.setModule("NONE")
             self.mod_modules.setModule("NONE")
+            self.mod_modules.setGame("NONE")
+            self.ch_check_health.setGame("N/A", "0KB", "N/A", "N/A")
         self.view.switchScreen(prev_screen)
         
+    def detectCartridge(self):
+        if self.scarab.currentModule is not None:
+            self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge)
+            print(self.scarab.cartridge)
+            name = self.scarab.cartridge.get("name", "N/A")
+            romsize = str(self.scarab.cartridge.get("romsize", 0)) + "KB"
+            chipset = self.scarab.cartridge.get("chipset", "N/A")
+            checksum = self.scarab.cartridge.get("checksum", "N/A")
+            image_path = self.game_image_manager.getImagePathByName(self.scarab.cartridge.get("name", "N/A"), self.scarab.currentModule.getIdString())
+            if image_path is not None:
+                self.setImages(image_path)
+            self.mod_modules.setGame(name)
+            self.ch_check_health.setGame(name, romsize, chipset, checksum)
+        else:
+            self.view.displayMessage("Cannot identify Cartridge with no Module inserted.", is_error=True)
+            self.ch_check_health.ui.cart_image.setPixmap(None)
+            self.mod_modules.setGame("NONE")
+            self.ch_check_health.setGame("N/A", "0KB", "N/A", "N/A")
+    
+    def setImages(self, image_path):
+        self.ch_check_health.ui.cart_image.setPixmap(QPixmap(image_path))
+    
     def dumpSave(self):
-        location = File_Management.getNewSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"])
+        if not self.cartSafetyCheck():
+            return
+        if self.scarab.cartridge.get("saveexp", 0) == 0:
+            self.view.displayMessage("Cartridge does not support save files.", is_error=True)
+            return
+        location = File_Management.getNewSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge.get("name", "N/A"))
         self.sm_dump.dumpingSetup(location)
         self.view.switchScreen(self.sm_dump)
         save_data = self.scarab.dumpSave()
@@ -105,16 +131,21 @@ class SCARABGUI:
         self.sm_dump.dumpedSetup()
         
     def switchRestore(self):
-        saves = File_Management.getSavesByGame(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"])
+        if not self.cartSafetyCheck():
+            return
+        if self.scarab.cartridge.get("saveexp", 0) == 0:
+            self.view.displayMessage("Cartridge does not support save files.", is_error=True)
+            return
+        saves = File_Management.getSavesByGame(self.scarab.currentModule.getIdString(), self.scarab.cartridge.get("name", "N/A"))
         self.sm_select_restore.populateSaves(saves)
         self.view.switchScreen(self.sm_select_restore)
         
     def restoreSave(self):
         selected_save = self.sm_select_restore.getSelectedSave()
-        location = File_Management.getExistingSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"], selected_save)
+        location = File_Management.getExistingSaveFilePath(self.scarab.currentModule.getIdString(), self.scarab.cartridge.get("name", "N/A"), selected_save)
         self.sm_restore.restoringSetup(location)
         self.view.switchScreen(self.sm_restore)
-        save_buffer = File_Management.readSave(self.scarab.currentModule.getIdString(), self.scarab.cartridge["name"], selected_save)
+        save_buffer = File_Management.readSave(self.scarab.currentModule.getIdString(), self.scarab.cartridge.get("name", "N/A"), selected_save)
         self.scarab.restoreSave(save_buffer)
         self.sm_restore.restoredSetup()
         
@@ -140,23 +171,45 @@ class SCARABGUI:
         games = File_Management.getGamesByConsole(console)
         self.sm_select_game.populateGames(games)
         
-    def prepSaveManager(self):
-        console = self.sm_select_game.getCurrentConsole()
-        game = self.sm_select_game.getCurrentGame()
-        saves = File_Management.getSavesByGame(console, game)
-        self.sm_save_browse.populateSaves(saves, console)
-        self.view.switchScreen(self.sm_save_browse)
+    def prepSaveManager(self, inserted: bool = False):
+        if not inserted:
+            console = self.sm_select_game.getCurrentConsole()
+            game = self.sm_select_game.getCurrentGame()
+            if game is None or console is None:
+                self.view.displayMessage("Game not selected.", is_error=True)
+                return
+            saves = File_Management.getSavesByGame(console, game)
+            self.sm_save_browse.populateSaves(saves, console)
+            self.sm_save_browse.current_console = console
+            self.sm_save_browse.current_game = game
+            self.view.switchScreen(self.sm_save_browse)
+        else:
+            if not self.cartSafetyCheck():
+                return
+            if self.scarab.cartridge.get("saveexp", 0) == 0:
+                self.view.displayMessage("Cartridge does not support save files.", is_error=True)
+                return
+            saves = File_Management.getSavesByGame(self.scarab.currentModule.getIdString(), self.scarab.cartridge.get("name", "N/A"))
+            self.sm_save_browse.populateSaves(saves, console)
+            self.view.switchScreen(self.sm_save_browse)
         
     def checkHealth(self, custom=False):
+        if "name" not in self.scarab.cartridge.keys():
+            self.view.displayMessage("Cannot run Health Check with no Cartridge.", is_error=True)
+            return
+        fact_file = open("didyouknow.txt")
+        random_fact = random.choice(fact_file.read().splitlines())
+        fact_file.close()
+        self.ch_scanning.popFact(random_fact)
         if custom:
             pins = self.ch_custom_scan.isPinsChecked()
             checksum = self.ch_custom_scan.isChecksumChecked()
-            retention = self.ch_custom_scan.isRetentionChecked()
+            retention = self.ch_custom_scan.isRetentionChecked() and self.scarab.cartridge.get("saveexp", 0) != 0
             self.ch_scanning.setupCheck(pins, checksum, retention)
         else:
             pins = True
             checksum = True
-            retention = True
+            retention = True and self.scarab.cartridge["saveexp"] != 0
             self.ch_scanning.setupCheck(pins, checksum, retention)
         self.view.switchScreen(self.ch_scanning)
         if pins:
@@ -168,12 +221,69 @@ class SCARABGUI:
             self.ch_scanning.displayResults("checksum", checksum_result)
             self.view.repaint()
         if retention:
-            self.ch_scanning.ui
+            temp_save = self.scarab.dumpSave()
+            File_Management.retentionWriteTempSave(temp_save, self.scarab.cartridge["name"])
+            self.dummy = File_Management.generateDummySave(self.scarab.cartridge["savesize"])
+            self.scarab.restoreSave(self.dummy)
+            self.ch_scanning.preRetentionNoticeSetup()
+            self.view.repaint()
+        else:
+            self.ch_scanning.checksDone()
+            self.view.repaint()
+            
         #results = self.scarab.checkHealth(pins, checksum, retention)
         #self.ch_scanning.displayResults(results)
         
+    def saveRetentionPreWait(self):
+        self.ch_scanning.preRetentionNoticeAcknowledged()
+        self.view.repaint()
+        QTimer.singleShot(30000, self.saveRetentionPostWait)
+        
+    def saveRetentionPostWait(self):
+        self.ch_scanning.postRetentionNoticeSetup()
+        self.view.repaint()
+        
+    def saveRetentionFinal(self):
+        self.ch_scanning.postRetentionNoticeAcknowledged()
+        self.view.repaint()
+        test_save = self.scarab.dumpSave()
+        mismatches = 0
+        total = self.scarab.cartridge.get("savesize", 0)
+        for i in range(total):
+            if test_save[i] != self.dummy[i]:
+                mismatches += 1
+        percent = round(((total - mismatches) / total) * 100, 2)
+        self.ch_scanning.displayResults("retention", True, str(percent) + "% Match")
+        self.ch_scanning.checksDone()
+    
     def deleteSave(self):
+        if self.sm_save_browse.getSelectedSave() is None:
+            self.view.displayMessage("Save not selected.", is_error=True)
+            return
         toDelete = self.sm_save_browse.getSelectedSave()
         console = self.sm_save_browse.current_console
-        File_Management.deleteSave(toDelete, console)
+        game = self.sm_save_browse.current_game
+        File_Management.deleteSave(toDelete, console, game)
+        saves = File_Management.getSavesByGame(console, game)
+        self.sm_save_browse.populateSaves(saves, console)
         
+    def cartSafetyCheck(self) -> bool:
+        if self.scarab.scarab is None:
+            self.view.displayMessage("SCARAB not found.", is_error=True)
+            return False
+        if self.scarab.currentModule is None:
+            self.view.displayMessage("Module not found.", is_error=True)
+            return False
+        if "name" not in self.scarab.cartridge.keys():
+            self.view.displayMessage("No game inserted.", is_error=True)
+            return False
+        return True
+    
+    def getSettings(self):
+        self.settings = File_Management.getSettings()
+        self.options.populateSettings(self.settings)
+        
+    def saveSettings(self):
+        self.settings = self.options.getSettings()
+        File_Management.saveSettings(self.settings)
+        self.view.displayMessage("Settings saved.")
