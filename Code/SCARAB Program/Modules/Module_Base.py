@@ -4,6 +4,10 @@ from abc import ABC, abstractmethod
 
 class scarab_module(ABC):
     @abstractmethod
+    def getApiId(self):
+        pass
+    
+    @abstractmethod
     def getIdString(self):
         pass
     

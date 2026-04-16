@@ -1,5 +1,7 @@
 from GUI_Screens import check_health_menu
 from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
 
 class check_health(QWidget):
     def __init__(self):
@@ -13,3 +15,9 @@ class check_health(QWidget):
         self.ui.rom_size.setText(romsize)
         self.ui.chipset.setText(chipset)
         self.ui.checksum.setText(checksum)
+        
+    def setImage(self, image: bytes):
+        image_pixmap = QPixmap()
+        image_pixmap.loadFromData(image)
+        scaled = image_pixmap.scaled(self.ui.cart_image.size(),Qt.AspectRatioMode.KeepAspectRatio,Qt.TransformationMode.SmoothTransformation)
+        self.ui.cart_image.setPixmap(scaled)

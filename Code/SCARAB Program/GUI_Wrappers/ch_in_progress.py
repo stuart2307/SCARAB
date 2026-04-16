@@ -1,5 +1,7 @@
 from GUI_Screens import check_health_in_progress
 from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
 
 class ch_in_progress(QWidget):
     def __init__(self):
@@ -75,3 +77,9 @@ class ch_in_progress(QWidget):
             self.ui.test_save_retention.setText("Not Selected" if result is None else comment)
         else:
             self.ui.identify_corruption.setText("Not Selected")
+            
+    def setImage(self, image: bytes):
+        image_pixmap = QPixmap()
+        image_pixmap.loadFromData(image)
+        scaled = image_pixmap.scaled(self.ui.cart_image.size(),Qt.AspectRatioMode.KeepAspectRatio,Qt.TransformationMode.SmoothTransformation)
+        self.ui.cart_image.setPixmap(scaled)

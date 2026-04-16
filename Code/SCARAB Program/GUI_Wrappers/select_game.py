@@ -15,6 +15,9 @@ class select_game(QWidget):
     def populateGames(self, games: list):
         self.ui.save_list.setModel(QStringListModel(games))
         
+    def setDetectedGame(self, game):
+        self.ui.detected_game.setText(game)
+        
     def getCurrentConsole(self):
         return self.ui.console_list.currentIndex().data()
     

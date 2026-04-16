@@ -24,6 +24,11 @@ class snes_module(Module_Base.scarab_module):
         0xF: "Custom",
     }
     
+    API_ID = 6
+    
+    def getApiId(self):
+        return self.API_ID
+    
     def getIdString(self):
         return "SNES"
     
@@ -42,7 +47,7 @@ class snes_module(Module_Base.scarab_module):
                 device.reset_input_buffer()
                 print("Rom Type: ", cartDetails["romtype"])
             else:
-                cartDetails["name"] = header[0:21].decode(errors="replace")
+                cartDetails["name"] = header[0:21].decode(errors="replace").strip()
                 #print("Name: ", currentRom)
                 match (header[21] & 15):
                     case 0:

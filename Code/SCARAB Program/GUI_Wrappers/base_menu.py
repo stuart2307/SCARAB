@@ -53,6 +53,20 @@ class base_menu(QMainWindow):
     def enableOptionsButton(self):
         self.ui.options_button.setDisabled(False)
         
+    def disableButtons(self):
+        self.disableCheckHealthButton()
+        self.disableHomeButton()
+        self.disableModulesButton()
+        self.disableOptionsButton()
+        self.disableSaveManagementButton()
+        
+    def enableButtons(self):
+        self.enableCheckHealthButton()
+        self.enableHomeButton()
+        self.enableModulesButton()
+        self.enableOptionsButton()
+        self.enableSaveManagementButton() 
+        
     def displayMessage(self, message: str, is_error: bool = False):
         self.ui.message.setText(("ERROR: " if is_error else "") + message)
         self.ui.message_banner.setVisible(True)

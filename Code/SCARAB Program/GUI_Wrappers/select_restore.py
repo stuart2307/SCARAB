@@ -1,6 +1,8 @@
 from GUI_Screens import save_management_select_restore
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import QStringListModel
+from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
 
 class select_restore(QWidget):
     def __init__(self):
@@ -14,3 +16,9 @@ class select_restore(QWidget):
         
     def getSelectedSave(self):
         return self.ui.save_list.currentIndex().data()
+    
+    def setImage(self, image: bytes):
+        image_pixmap = QPixmap()
+        image_pixmap.loadFromData(image)
+        scaled = image_pixmap.scaled(self.ui.cart_image.size(),Qt.AspectRatioMode.KeepAspectRatio,Qt.TransformationMode.SmoothTransformation)
+        self.ui.cart_image.setPixmap(scaled)
