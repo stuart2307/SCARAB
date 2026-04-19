@@ -1,49 +1,55 @@
 #define NOP __asm__ __volatile__("nop\n\t")
-#define READ_HIGH PORTH |= 0b00100000
-#define READ_LOW PORTH &= 0b11011111
-#define WRITE_HIGH PORTH |= 0b01000000
-#define WRITE_LOW PORTH &= 0b10111111
-#define ALEL_HIGH PORTH |= 0b00010000
-#define ALEL_LOW PORTH &= 0b11101111
-#define ALEH_HIGH PORTH |= 0b00001000
-#define ALEH_LOW PORTH &= 0b11110111
-#define DIR_CART PORTB |= 1
-#define DIR_SCARAB PORTB &= 0b11111110
-#define AD0toAD7out PORTF
+#define READ_HIGH PORTC |= 0b00000100
+#define READ_LOW PORTC &= 0b11111011
+#define WRITE_HIGH PORTC |= 0b00001000
+#define WRITE_LOW PORTC &= 0b11110111
+#define ALEL_HIGH PORTC |= 0b00000010
+#define ALEL_LOW PORTC &= 0b11111101
+#define ALEH_HIGH PORTC |= 0b00000001
+#define ALEH_LOW PORTC &= 0b11111110
+#define DIR_CART PORTG |= 0b00000001
+#define DIR_SCARAB PORTG &= 0b11111110
+#define OE_HIGH PORTG |= 0b00000010
+#define OE_LOW PORTG &= 0b11111101
+#define AD0toAD7out PORTL
 #define AD8toAD15out PORTK
-#define AD0toAD7in PINF
+#define AD0toAD7in PINL
 #define AD8toAD15in PINK
 bool isChecked;
 
 void setup() {
   // put your setup code here, to run once:
-  DDRH = 0xFF;
-  DDRB = 0XFF;
-  DDRF = 0xFF; //LOWER
+  DDRG = 0xFF;
+  DDRC = 0xFF;
+  DDRL = 0xFF; //LOWER
   DDRK = 0xFF; //UPPER
   READ_HIGH;
   WRITE_HIGH;
   ALEL_HIGH;
   ALEH_HIGH;
+  OE_LOW;
+  PORTG |= 0b00000100;
   delay(300);
   Serial.begin(2000000);
   isChecked = false;
 }
 
 void n64WriteSetup() {
-  DDRF = 0xFF; //LOWER
-  PORTF = 0x00;
+  DDRL = 0xFF; //LOWER
+  PORTL = 0x00;
   DDRK = 0xFF; //UPPER
   PORTK = 0x00;
   DIR_CART;
-  delayMicroseconds(1);
+  delayMicroseconds(5);
 }
 
 void n64ReadSetup() {
-  DDRF = 0x00; //LOWER
+  DDRL = 0x00; //LOWER
   DDRK = 0x00; //UPPER
+  PORTL = 0xFF;
+  PORTK = 0xFF;
   DIR_SCARAB;
-  delayMicroseconds(1);
+  delayMicroseconds(5);
 }
 
 void n64WriteAddress(uint32_t address) {
@@ -60,14 +66,14 @@ void n64WriteAddress(uint32_t address) {
   AD0toAD7out = adrHigh & 0xFF;
   AD8toAD15out = (adrHigh >> 8) & 0xFF;
 
-  NOP;
+  delay(5);
 
   ALEH_LOW;
 
   AD0toAD7out = adrLow & 0xFF;
   AD8toAD15out = (adrLow >> 8) & 0xFF;
 
-  NOP;NOP;
+  delay(5);delay(5);
 
   ALEL_LOW;
 
@@ -76,13 +82,8 @@ void n64WriteAddress(uint32_t address) {
 
 uint16_t n64ReadData() {
   READ_LOW;
-  NOP;NOP;NOP;NOP;NOP;
+  delay(5);NOP;NOP;NOP;NOP;
   uint16_t tempWord = ((AD8toAD15in & 0xFF) << 8) | (AD0toAD7in & 0xFF);
-   NOP;NOP;NOP;NOP;NOP;
-  tempWord = ((AD8toAD15in & 0xFF) << 8) | (AD0toAD7in & 0xFF);
-   NOP;NOP;NOP;NOP;NOP;
-  tempWord = ((AD8toAD15in & 0xFF) << 8) | (AD0toAD7in & 0xFF);
-   NOP;NOP;NOP;NOP;NOP;
   READ_HIGH;
   return tempWord;
 }
@@ -91,11 +92,11 @@ void loop() {
   while(!isChecked) {
     // Set the address
     byte sdBuffer[64];
+    delayMicroseconds(5);
     // Read first 64 bytes of rom
     for (int c = 0; c < 64; c += 2) {
+      n64WriteAddress(0x10000000 + c);
       // split word
-      n64WriteAddress(0x10000000+c);
-      NOP;NOP;NOP;NOP;NOP;
       word myWord = n64ReadData();
       byte loByte = myWord & 0xFF;
       byte hiByte = myWord >> 8;
@@ -111,6 +112,8 @@ void loop() {
       Serial.print(sdBuffer[i], HEX);
       Serial.print(" ");
     }
+    Serial.println();
+    Serial.write(sdBuffer, 64);
     Serial.println();
     isChecked = true;
   }
