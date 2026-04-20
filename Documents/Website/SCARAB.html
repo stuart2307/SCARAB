@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCARAB - Save and Cartridge Aid Requiring Adapter Boards</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #1a1430;
+    --bg2:       #221b42;
+    --purple:    #2e2258;
+    --accent:    #7c5cbf;
+    --accent2:   #a87de8;
+    --accent3:   #c9a8ff;
+    --glow:      #b894ff;
+    --text:      #e8e0ff;
+    --muted:     #8a80aa;
+    --border:    #4a3a7a;
+    --dashed:    #6a5aa0;
+    --gold:      #f0c040;
+    --red-nes:   #e83030;
+    --green:     #50e080;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.4;
+  }
+
+  header {
+    position: relative;
+    padding: 2.5rem 2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg2);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent2), var(--glow), var(--accent2), transparent);
+    animation: scanline-h 3s linear infinite;
+  }
+
+  @keyframes scanline-h {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .logo-block { display: flex; align-items: center; gap: 1.2rem; }
+
+  .logo-icon {
+    width: 72px; height: 80px;
+    position: relative;
+  }
+
+  .logo-icon svg {
+    width: 100%; height: 100%;
+    filter: drop-shadow(0 0 8px var(--glow));
+    animation: flicker 4s ease-in-out infinite;
+  }
+
+  @keyframes flicker {
+    0%,100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.7; }
+    94% { opacity: 1; }
+    96% { opacity: 0.85; }
+    97% { opacity: 1; }
+  }
+
+  .logo-text h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.6rem;
+    letter-spacing: 0.12em;
+    color: var(--accent3);
+    text-shadow: 0 0 20px var(--glow), 0 0 40px rgba(184,148,255,0.3);
+    line-height: 1;
+  }
+
+  .logo-text p {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .header-badges {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    padding: 0.4rem 0.7rem;
+    border: 2px solid;
+    letter-spacing: 0.08em;
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+
+  .badge-nes  { border-color: var(--red-nes); color: var(--red-nes); background: rgba(232,48,48,0.08); }
+  .badge-snes { border-color: var(--accent2); color: var(--accent2); background: rgba(168,125,232,0.08); }
+  .badge-ard  { border-color: var(--green);  color: var(--green);   background: rgba(80,224,128,0.08); }
+
+  @keyframes badge-pulse {
+    0%,100% { box-shadow: 0 0 4px currentColor; }
+    50%      { box-shadow: 0 0 10px currentColor; }
+  }
+
+  nav {
+    background: var(--purple);
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav a {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    padding: 1rem 1.3rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    border-right: 1px solid var(--border);
+    transition: background 0.15s, color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  nav a:first-child { border-left: 1px solid var(--border); }
+
+  nav a::before {
+    content: '▶';
+    position: absolute;
+    left: 0.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+    color: var(--accent2);
+  }
+
+  nav a:hover {
+    background: rgba(124,92,191,0.3);
+    color: var(--accent3);
+  }
+
+  nav a:hover::before { opacity: 1; }
+
+  .hero {
+    position: relative;
+    padding: 4rem 2rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(124,92,191,0.15) 0%, transparent 70%);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,58,122,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,58,122,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
+
+  .hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(50,224,128,0.08);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-size: 0.65rem;
+    padding: 0.3rem 0.9rem;
+    margin-top: 1.2rem;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.1em;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: dot-pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes dot-pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .hero h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+    line-height: 1.8;
+    color: var(--text);
+    text-shadow: 0 0 30px rgba(184,148,255,0.4);
+    margin-bottom: 1.2rem;
+    max-width: 700px;
+    margin-inline: auto;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    max-width: 580px;
+    margin-inline: auto;
+    line-height: 1.9;
+    margin-bottom: 2.5rem;
+  }
+
+  .cartridge-wrap {
+    position: relative;
+    display: block;
+    margin: 0;
+  }
+
+  .cartridge-svg {
+    width: min(320px, 80vw);
+    filter: drop-shadow(0 0 24px rgba(168,125,232,0.5));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  section {
+    padding: 3.5rem 2rem;
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px dashed var(--dashed);
+  }
+
+  .section-header h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 15px rgba(168,125,232,0.5);
+  }
+
+  .section-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--accent);
+    background: rgba(124,92,191,0.2);
+    border: 1px solid var(--accent);
+    padding: 0.2rem 0.5rem;
+    white-space: nowrap;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .about-card {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    padding: 1.5rem;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .about-card::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    width: 12px; height: 12px;
+    border-top: 2px solid var(--accent2);
+    border-left: 2px solid var(--accent2);
+  }
+
+  .about-card::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; right: -2px;
+    width: 12px; height: 12px;
+    border-bottom: 2px solid var(--accent2);
+    border-right: 2px solid var(--accent2);
+  }
+
+  .about-card:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 20px rgba(168,125,232,0.2);
+  }
+
+  .about-card .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .about-card h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: var(--accent3);
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+
+  .about-card p {
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  .support-section { background: var(--bg2); }
+
+  .console-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    align-items: stretch;
+    border: 2px solid var(--border);
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+    overflow: hidden;
+  }
+
+  .console-row:hover { border-color: var(--accent2); }
+
+  .console-label {
+    background: var(--purple);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 1rem 1.2rem;
+    border-right: 2px solid var(--border);
+  }
+
+  .console-label span {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--text);
+    letter-spacing: 0.08em;
+  }
+
+  .console-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .dot-nes  { background: var(--red-nes); box-shadow: 0 0 6px var(--red-nes); }
+  .dot-snes { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+
+  .console-details {
+    padding: 1rem 1.3rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .chip {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .chip.active { border-color: var(--green); color: var(--green); }
+
+  .docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.2rem;
+  }
+
+  .doc-card {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    padding: 1.6rem 1.4rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .doc-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .doc-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(124,92,191,0.3);
+  }
+
+  .doc-card:hover::before { transform: scaleX(1); }
+
+  .doc-icon {
+    font-size: 2rem;
+    filter: grayscale(0.3);
+  }
+
+  .doc-card h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: var(--accent3);
+    letter-spacing: 0.1em;
+    line-height: 1.7;
+  }
+
+  .doc-card p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .doc-badge {
+    font-size: 0.6rem;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: auto;
+  }
+
+  .doc-badge::before { content: '▶ '; font-size: 0.45rem; }
+
+  .hw-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .hw-layout { grid-template-columns: 1fr; }
+    nav a { padding: 0.8rem 0.7rem; }
+    .logo-text h1 { font-size: 1.1rem; }
+    header { flex-direction: column; gap: 1rem; text-align: center; }
+    .console-row { grid-template-columns: 1fr; }
+    .console-label { border-right: none; border-bottom: 2px solid var(--border); }
+  }
+
+  .hw-card {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    padding: 1.5rem;
+  }
+
+  .hw-card h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(240,192,64,0.4);
+  }
+
+  .hw-spec {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(74,58,122,0.4);
+    font-size: 0.72rem;
+  }
+
+  .hw-spec:last-child { border-bottom: none; }
+  .hw-spec .key { color: var(--muted); }
+  .hw-spec .val { color: var(--accent3); }
+
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 0; bottom: 0;
+    width: 2px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--border) 0,
+      var(--border) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .tl-item::before {
+    content: '◆';
+    position: absolute;
+    left: -1.87rem;
+    top: 0.1rem;
+    font-size: 0.65rem;
+    color: var(--accent2);
+    text-shadow: 0 0 8px var(--accent2);
+  }
+
+  .tl-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+
+  .tl-title {
+    font-size: 0.82rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+    font-weight: bold;
+  }
+
+  .tl-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  footer {
+    background: var(--bg2);
+    border-top: 2px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  footer p {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.4rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    line-height: 2.5;
+  }
+
+  footer .footer-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    text-shadow: 0 0 12px var(--glow);
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .divider {
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 6px,
+      var(--border) 6px,
+      var(--border) 12px
+    );
+    margin: 0;
+  }
+
+  .blink { animation: blink 1.2s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: reveal-in 0.5s ease forwards;
+  }
+
+  @keyframes reveal-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+  .delay-5 { animation-delay: 0.5s; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="logo-block reveal">
+    <div class="logo-icon">
+      <img src="logo.svg">
+    </div>
+    <div class="logo-text">
+      <h1>SCARAB</h1>
+      <p>SAVE AND CARTRIDGE AID REQUIRING ADAPTER BOARDS</p>
+    </div>
+  </div>
+
+  <div class="header-badges reveal delay-2">
+    <div class="badge badge-nes">NES</div>
+    <div class="badge badge-snes">SNES</div>
+    <div class="badge badge-ard">ARDUINO MEGA 2560</div>
+  </div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <a href="#about">ABOUT</a>
+  <a href="#hardware">HARDWARE</a>
+  <a href="#support">SUPPORT</a>
+  <a href="#docs">DOCUMENTS</a>
+  <a href="#timeline">TIMELINE</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+
+  <!-- Cartridge SVG illustration -->
+  <div class="cartridge-wrap reveal delay-1">
+    <img src="cart_logo.svg" class="cartridge-svg">
+  </div>
+
+  <div class="hero-status reveal" style="background:rgba(240,192,64,0.08);border-color:var(--gold);color:var(--gold);margin-bottom:2rem;">
+    <div class="status-dot" style="background:var(--gold);"></div>
+    FINAL YEAR PROJECT - COMPLETED
+  </div>
+
+  <h2 class="reveal delay-2">RETRO GAME CARTRIDGE<br>HEALTH CHECKER</h2>
+  <p class="reveal delay-3">
+    SCARAB diagnoses and reports on the health of retro game cartridges and their save batteries - 
+    powered by an Arduino Mega 2560 with swappable Module Boards for each supported console.
+  </p>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2>ABOUT THE PROJECT</h2>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-card reveal delay-1">
+      <span class="card-icon">🎮</span>
+      <h3>WHAT IS SCARAB?</h3>
+      <p>SCARAB is a hardware and software system designed to check the health of retro game cartridges. It verifies save data retention, checks ROM integrity, and reports on cartridge status through a custom cross-platform application.</p>
+    </div>
+    <div class="about-card reveal delay-2">
+      <span class="card-icon">🔌</span>
+      <h3>HOW IT WORKS</h3>
+      <p>A console-specific Module Board slots into the SCARAB base unit. The cartridge plugs into the Module. The Arduino Mega 2560 reads data from the cartridge and relays it to the PC software over serial communication.</p>
+    </div>
+    <div class="about-card reveal delay-3">
+      <span class="card-icon">🖥️</span>
+      <h3>THE SOFTWARE</h3>
+      <p>The SCARAB cross-platform app displays cartridge identity, health status, inserted module type, and provides options to re-identify the cartridge or inspect the active module in detail.</p>
+    </div>
+    <div class="about-card reveal delay-4">
+      <span class="card-icon">🔧</span>
+      <h3>MODULAR DESIGN</h3>
+      <p>Each console is supported by a dedicated Adapter Board. This keeps the system extensible - new consoles can be added by designing and flashing a new Module without changing the core unit.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ HARDWARE ══ -->
+<section id="hardware">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2>HARDWARE OVERVIEW</h2>
+  </div>
+
+  <div class="hw-layout">
+    <div class="hw-card reveal delay-1">
+      <h3>◆ CORE UNIT</h3>
+      <div class="hw-spec"><span class="key">MCU</span><span class="val">Arduino Mega 2560</span></div>
+      <div class="hw-spec"><span class="key">Architecture</span><span class="val">ATmega2560 @ 16MHz</span></div>
+      <div class="hw-spec"><span class="key">Flash</span><span class="val">256 KB</span></div>
+      <div class="hw-spec"><span class="key">SRAM</span><span class="val">8 KB</span></div>
+      <div class="hw-spec"><span class="key">I/O Pins</span><span class="val">54 Digital / 16 Analog</span></div>
+      <div class="hw-spec"><span class="key">Communication</span><span class="val">USB Serial to PC</span></div>
+      <div class="hw-spec"><span class="key">Module Interface</span><span class="val">Custom Edge Connector</span></div>
+    </div>
+
+    <div class="hw-card reveal delay-2">
+      <h3>◆ MODULE BOARDS</h3>
+      <div class="hw-spec"><span class="key">NES Module</span><span class="val">72-pin Adapter</span></div>
+      <div class="hw-spec"><span class="key">SNES Module</span><span class="val">62-pin Adapter</span></div>
+      <div class="hw-spec"><span class="key">Save Detection</span><span class="val">Data Retention Test</span></div>
+      <div class="hw-spec"><span class="key">ROM Check</span><span class="val">Header + Checksum</span></div>
+      <div class="hw-spec"><span class="key">ID Method</span><span class="val">ROM Header Parse</span></div>
+      <div class="hw-spec"><span class="key">Hot-swap</span><span class="val">Not supported (power off)</span></div>
+      <div class="hw-spec"><span class="key">Extensibility</span><span class="val">New boards per console</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ SUPPORT ══ -->
+<section id="support">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2>CONSOLE SUPPORT</h2>
+  </div>
+
+  <div class="console-row reveal delay-1">
+    <div class="console-label">
+      <div class="console-dot dot-nes"></div>
+      <span>NES</span>
+    </div>
+    <div class="console-details">
+      <span class="chip active">✔ Supported</span>
+      <span class="chip active">✔ Module Board</span>
+      <span class="chip active">✔ Save Retention Check</span>
+      <span class="chip active">✔ ROM Header ID</span>
+      <span class="chip">72-pin Cartridge</span>
+      <span class="chip">iNES Format</span>
+    </div>
+  </div>
+
+  <div class="console-row reveal delay-2">
+    <div class="console-label">
+      <div class="console-dot dot-snes"></div>
+      <span>SNES</span>
+    </div>
+    <div class="console-details">
+      <span class="chip active">✔ Supported</span>
+      <span class="chip active">✔ Module Board</span>
+      <span class="chip active">✔ Save Retention Check</span>
+      <span class="chip active">✔ ROM Header ID</span>
+      <span class="chip">62-pin Cartridge</span>
+      <span class="chip">SNES Header Format</span>
+    </div>
+  </div>
+
+  <div class="console-row reveal delay-3" style="opacity:0.5;">
+    <div class="console-label">
+      <div class="console-dot" style="background:#555;"></div>
+      <span style="color:var(--muted)">GB / GBC</span>
+    </div>
+    <div class="console-details">
+      <span class="chip">⧖ Planned</span>
+      <span class="chip">Future Module</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ DOCUMENTS ══ -->
+<section id="docs">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2>PROJECT DOCUMENTS & LINKS</h2>
+  </div>
+
+  <div class="docs-grid">
+    <a href="SCARAB Functional Specification.pdf" class="doc-card reveal delay-1">
+      <div class="doc-icon">📋</div>
+      <h3>FUNCTIONAL SPECIFICATION</h3>
+      <p>Defines the scope, requirements, and intended behaviour of the SCARAB system - both hardware and software components.</p>
+      <span class="doc-badge">VIEW DOCUMENT</span>
+    </a>
+
+    <a href="SCARAB Research Document.pdf" class="doc-card reveal delay-2">
+      <div class="doc-icon">🔬</div>
+      <h3>RESEARCH DOCUMENT</h3>
+      <p>Background research covering retro cartridge formats, battery-backed SRAM, Arduino capabilities, and prior art in cartridge readers.</p>
+      <span class="doc-badge">VIEW DOCUMENT</span>
+    </a>
+
+    <a href="SCARAB Design Document.pdf" class="doc-card reveal delay-3">
+      <div class="doc-icon">📐</div>
+      <h3>DESIGN DOCUMENT</h3>
+      <p>System architecture, schematic diagrams, module board layout, and software design patterns.</p>
+      <span class="doc-badge">VIEW DOCUMENT</span>
+    </a>
+
+    <a href="#" class="doc-card reveal delay-4">
+      <div class="doc-icon">📄</div>
+      <h3>FINAL REPORT</h3>
+      <p>Complete writeup of the project including implementation details, testing results, evaluation, and conclusions.</p>
+      <span class="doc-badge">VIEW DOCUMENT</span>
+    </a>
+
+    <a href="https://github.com/stuart2307/SCARAB" class="doc-card reveal delay-5">
+      <div class="doc-icon"><i class="fa fa-github"></i></div>
+      <h3>GITHUB</h3>
+      <p>GitHub Repository of the Open-Source SCARAB Device and accompanying Cross-platform software.</p>
+      <span class="doc-badge">VIEW REPOSITORY</span>
+    </a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ TIMELINE ══ -->
+<section id="timeline">
+  <div class="section-header reveal">
+    <span class="section-num">05</span>
+    <h2>PROJECT TIMELINE</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item reveal delay-1">
+      <div class="tl-label">PHASE 1</div>
+      <div class="tl-title">Research & Specification</div>
+      <div class="tl-desc">Defined project scope, researched retro cartridge formats (NES/SNES), Arduino capabilities, and produced the Functional Specification and Research Document.</div>
+    </div>
+    <div class="tl-item reveal delay-2">
+      <div class="tl-label">PHASE 2</div>
+      <div class="tl-title">Hardware Design & Prototyping</div>
+      <div class="tl-desc">Designed the SCARAB base unit and first Module Boards for NES and SNES. Schematic design, PCB layout, and initial breadboard prototyping.</div>
+    </div>
+    <div class="tl-item reveal delay-3">
+      <div class="tl-label">PHASE 3</div>
+      <div class="tl-title">Firmware & Software Development</div>
+      <div class="tl-desc">Arduino firmware for cartridge identification and health checking. Cross-platform application development including the SCARAB_MENU interface, module detection, and serial communication layer.</div>
+    </div>
+    <div class="tl-item reveal delay-4">
+      <div class="tl-label">PHASE 4</div>
+      <div class="tl-title">Testing & Evaluation</div>
+      <div class="tl-desc">End-to-end testing with physical NES and SNES cartridges. Battery voltage validation, ROM header parsing accuracy, and UI/UX refinement.</div>
+    </div>
+    <div class="tl-item reveal delay-5">
+      <div class="tl-label">PHASE 5</div>
+      <div class="tl-title">Final Report & Submission</div>
+      <div class="tl-desc">Compilation of all documentation, final evaluation, and project submission for Final Year assessment.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <span class="footer-logo">SCARAB</span>
+  <p>FINAL YEAR PROJECT &nbsp;|&nbsp; ARDUINO MEGA 2560 &nbsp;|&nbsp; NES · SNES SUPPORT</p>
+  <p style="margin-top:0.5rem;">INSERT CARTRIDGE TO BEGIN <span class="blink">█</span></p>
+</footer>
+
+</body>
+</html>
