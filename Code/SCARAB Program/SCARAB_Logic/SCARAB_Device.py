@@ -67,8 +67,14 @@ class scarab_device():
             self.currentModule = None
         
     def writeEeprom(self, string):
+        print("HELLO" + string + "HELLO")
+        if len(string) < 8:
+            for _ in range(8-len(string)):
+                string += ' '
         self.scarab.write(b'\x03')
-        self.scarab.write(bytes(string[0:8]))
+        self.scarab.write(bytes(string[0:8], "utf-8", "replace"))
+        time.sleep(0.1)
+        self.scarab.read(2)
         
     def dumpSave(self):
         return self.currentModule.dumpSave(self.scarab, self.cartridge)

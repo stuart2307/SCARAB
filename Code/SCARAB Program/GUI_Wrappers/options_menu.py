@@ -15,3 +15,6 @@ class options_menu(QWidget):
     def getSettings(self):
         settings = {"API": {"gamesdbapikey": self.ui.api_key.text()}, "SCARAB": {"autoid": 'yes' if self.ui.auto_id_box.isChecked() else 'no'}}
         return settings
+    
+    def getEEPROMValue(self):
+        return self.ui.module_write.text()

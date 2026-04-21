@@ -12,6 +12,8 @@
 #define NES_CHAR_WRITE_HIGH PORTH |= 0b00100000
 #define NES_ROMSEL_LOW PORTH &= 0b10111111
 #define NES_ROMSEL_HIGH PORTH |= 0b01000000
+#define NES_M2_LOW  PORTG &= 0b11111110
+#define NES_M2_HIGH PORTG |= 0b00000001
 #define NOP __asm__ __volatile__("nop\n\t")
 
 void nes_setup() {
@@ -22,15 +24,14 @@ void nes_setup() {
   DDRA = 0x00;   //PRG data
   DDRB = 0x00;   //CHR data
   DDRH = 0xFF;   //Control
-
+  DDRG |= 0b00000001;  // G0 as output
+  
+  NES_M2_LOW;
   NES_CPU_RW_READ;
   NES_CHAR_READ_HIGH;
   NES_CHAR_WRITE_HIGH;
   NES_ROMSEL_HIGH;
-
-  Serial.begin(2000000);
-  Wire.begin();
-  Wire.setWireTimeout(1000, true);
+  delay(1);
 }
 
 void prepPrgRead() {
@@ -55,23 +56,23 @@ void prepChrRead() {
 uint8_t readPrg(uint16_t address) {
   NES_PRG_LOW_ADD = address & 0xFF;
   NES_PRG_UPP_ADD = (address >> 8) & 0xFF;
-  NOP;NOP;NOP;NOP;NOP;NOP;
-  return NES_PRG_DATA;
+  delayMicroseconds(1);
+  NES_CPU_RW_READ;
+  uint8_t data = NES_PRG_DATA;
+  return data;
 }
 
 void writePrg(uint16_t address, uint8_t data) {
   NES_PRG_LOW_ADD = address & 0xFF;
   NES_PRG_UPP_ADD = (address >> 8) & 0xFF;
   PORTA = data;
-  NOP;NOP;NOP;NOP;NOP;NOP;
-  NOP;NOP;NOP;NOP;NOP;NOP;
   delayMicroseconds(1);
 }
 
 uint8_t readChr(uint16_t address) {
   NES_CHAR_LOW_ADD = address & 0xFF;
   NES_CHAR_UPP_ADD = (address >> 8) & 0xFF;
-  NOP;NOP;NOP;NOP;NOP;NOP;
+  delayMicroseconds(1);
   return NES_CHAR_DATA;
 }
 
@@ -102,6 +103,30 @@ void mmc3SelectBank(uint8_t reg, uint8_t bank) {
   writePrg(0x8001, bank);
   NES_ROMSEL_HIGH;
   delayMicroseconds(2);
+}
+
+void unromSelectBank(uint8_t bank) {
+  prepPrgWrite();
+  NES_ROMSEL_LOW;
+  writePrg(0x8000, bank);
+  NES_ROMSEL_HIGH;
+  delayMicroseconds(10);
+}
+
+void cnromSelectBank(uint8_t bank) {
+  prepPrgWrite();
+  NES_ROMSEL_LOW;
+  writePrg(0x8000, bank);
+  NES_ROMSEL_HIGH;
+  delayMicroseconds(10);
+}
+
+void aoromSelectBank(uint8_t bank) {
+  prepPrgWrite();
+  NES_ROMSEL_LOW;
+  writePrg(0x8000, bank & 0x07); // bits 0-2 = PRG bank, bit 4 = mirroring (not needed for dumping)
+  NES_ROMSEL_HIGH;
+  delayMicroseconds(10);
 }
 
 void dumpPrgRom(uint8_t mapper, uint8_t banks) {
@@ -143,6 +168,28 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
       break;
     }
 
+    case 2: { //UNROM — swappable first 16KB, fixed last 16KB
+      for (uint8_t bank = 0; bank < banks - 1; bank++) {
+        unromSelectBank(bank);
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint16_t x = 0; x < 0x4000; x++) {
+          buffer[x % 64] = readPrg(0x8000 + x);
+          if (x % 64 == 63) Serial.write(buffer, 64);
+        }
+        NES_ROMSEL_HIGH;
+      }
+      // Last bank is fixed at $C000, always visible — no bank switch needed
+      prepPrgRead();
+      NES_ROMSEL_LOW;
+      for (uint16_t x = 0; x < 0x4000; x++) {
+        buffer[x % 64] = readPrg(0xC000 + x);
+        if (x % 64 == 63) Serial.write(buffer, 64);
+      }
+      NES_ROMSEL_HIGH;
+      break;
+    }
+
     case 3: { //MMC3
       for (uint8_t bank = 0; bank < banks - 1; bank++) {
         mmc3SelectBank(0x06, bank);
@@ -161,6 +208,20 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
         if (x % 64 == 63) Serial.write(buffer, 64);
       }
       NES_ROMSEL_HIGH;
+      break;
+    }
+
+    case 7: { //AOROM — full 32KB swap
+      for (uint8_t bank = 0; bank < banks; bank++) {
+        aoromSelectBank(bank);
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint16_t x = 0; x < 0x8000; x++) {
+          buffer[x % 64] = readPrg(0x8000 + x);
+          if (x % 64 == 63) Serial.write(buffer, 64);
+        }
+        NES_ROMSEL_HIGH;
+      }
       break;
     }
   }
@@ -194,17 +255,27 @@ void dumpChrRom(uint8_t mapper, uint8_t banks) {
       break;
     }
 
-    case 3: { //MMC3
+    case 2: { //UNROM — CHR-RAM, nothing to dump
+      // No CHR ROM; caller should not invoke this for UNROM
+      break;
+    }
+
+    case 3: { //CNROM — full CHR bank swap, each bank is 8KB
       for (uint8_t bank = 0; bank < banks; bank++) {
-        uint8_t regIndex = (bank < 4) ? (bank / 2) : (bank - 2);
-        mmc3SelectBank(regIndex, bank);
+        cnromSelectBank(bank);
         prepChrRead();
-        uint16_t baseAddr = (uint16_t)bank * 0x0400;
-        for (uint16_t x = 0; x < 0x0400; x++) {
-          buffer[x % 64] = readChr(baseAddr + x);
+        for (uint16_t x = 0; x < 0x2000; x++) {
+          buffer[x % 64] = readChr(x);
           if (x % 64 == 63) Serial.write(buffer, 64);
         }
       }
+      break;
+    }
+
+    // Note: MMC3 was formerly case 3 — you'll need to renumber it.
+    // See note below about the mapper numbering conflict.
+
+    case 7: { //AOROM — CHR-RAM, nothing to dump
       break;
     }
   }
@@ -245,6 +316,29 @@ void testPrgDataPins(uint8_t mapper, uint8_t banks) {
       break;
     }
 
+    case 2: { //UNROM
+      for (uint8_t bank = 0; bank < banks - 1; bank++) {
+        unromSelectBank(bank);
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint16_t x = 0; x < 0x4000; x++) {
+          uint8_t val = readPrg(0x8000 + x);
+          high |= val;
+          low  |= ~val;
+        }
+        NES_ROMSEL_HIGH;
+      }
+      prepPrgRead();
+      NES_ROMSEL_LOW;
+      for (uint16_t x = 0; x < 0x4000; x++) {
+        uint8_t val = readPrg(0xC000 + x);
+        high |= val;
+        low  |= ~val;
+      }
+      NES_ROMSEL_HIGH;
+      break;
+    }
+
     case 3: { //MMC3
       for (uint8_t bank = 0; bank < banks; bank++) {
         mmc3SelectBank(0x06, bank);
@@ -259,11 +353,25 @@ void testPrgDataPins(uint8_t mapper, uint8_t banks) {
       }
       break;
     }
+
+    case 7: { //AOROM
+      for (uint8_t bank = 0; bank < banks; bank++) {
+        aoromSelectBank(bank);
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint16_t x = 0; x < 0x8000; x++) {
+          uint8_t val = readPrg(0x8000 + x);
+          high |= val;
+          low  |= ~val;
+        }
+        NES_ROMSEL_HIGH;
+      }
+      break;
+    }
   }
   Serial.write(low);
   Serial.write(high);
 }
-
 void testChrDataPins(uint8_t mapper, uint8_t banks) {
   uint8_t high = 0x00;
   uint8_t low  = 0x00;
@@ -295,18 +403,24 @@ void testChrDataPins(uint8_t mapper, uint8_t banks) {
       break;
     }
 
-    case 3: { // MMC3
+    case 2: { // UNROM — CHR-RAM, skip
+      break;
+    }
+
+    case 3: { // CNROM
       for (uint8_t bank = 0; bank < banks; bank++) {
-        uint8_t regIndex = (bank < 4) ? (bank / 2) : (bank - 2);
-        mmc3SelectBank(regIndex, bank);
+        cnromSelectBank(bank);
         prepChrRead();
-        uint16_t baseAddr = (uint16_t)bank * 0x0400;
-        for (uint16_t x = 0; x < 0x0400; x++) {
-          uint8_t val = readChr(baseAddr + x);
+        for (uint16_t x = 0; x < 0x2000; x++) {
+          uint8_t val = readChr(x);
           high |= val;
           low |= ~val;
         }
       }
+      break;
+    }
+
+    case 7: { // AOROM — CHR-RAM, skip
       break;
     }
   }
@@ -364,6 +478,25 @@ uint32_t calcPrgCrc32(uint8_t mapper, uint8_t banks) {
       break;
     }
 
+    case 2: { //UNROM
+      for (uint8_t bank = 0; bank < banks - 1; bank++) {
+        unromSelectBank(bank);
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint16_t x = 0; x < 0x4000; x++) {
+          crc = crc32Update(crc, readPrg(0x8000 + x));
+        }
+        NES_ROMSEL_HIGH;
+      }
+      prepPrgRead();
+      NES_ROMSEL_LOW;
+      for (uint16_t x = 0; x < 0x4000; x++) {
+        crc = crc32Update(crc, readPrg(0xC000 + x));
+      }
+      NES_ROMSEL_HIGH;
+      break;
+    }
+
     case 3: { //MMC3
       for (uint8_t bank = 0; bank < banks - 1; bank++) {
         mmc3SelectBank(0x06, bank);
@@ -380,6 +513,19 @@ uint32_t calcPrgCrc32(uint8_t mapper, uint8_t banks) {
         crc = crc32Update(crc, readPrg(0xE000 + x));
       }
       NES_ROMSEL_HIGH;
+      break;
+    }
+
+    case 7: { //AOROM
+      for (uint8_t bank = 0; bank < banks; bank++) {
+        aoromSelectBank(bank);
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint16_t x = 0; x < 0x8000; x++) {
+          crc = crc32Update(crc, readPrg(0x8000 + x));
+        }
+        NES_ROMSEL_HIGH;
+      }
       break;
     }
   }
@@ -412,16 +558,22 @@ uint32_t calcChrCrc32(uint8_t mapper, uint8_t banks) {
       break;
     }
 
-    case 3: { //MMC3
+    case 2: { //UNROM — no CHR ROM
+      break;
+    }
+
+    case 3: { //CNROM
       for (uint8_t bank = 0; bank < banks; bank++) {
-        uint8_t regIndex = (bank < 4) ? (bank / 2) : (bank - 2);
-        mmc3SelectBank(regIndex, bank);
+        cnromSelectBank(bank);
         prepChrRead();
-        uint16_t baseAddr = (uint16_t)bank * 0x0400;
-        for (uint16_t x = 0; x < 0x0400; x++) {
-          crc = crc32Update(crc, readChr(baseAddr + x));
+        for (uint16_t x = 0; x < 0x2000; x++) {
+          crc = crc32Update(crc, readChr(x));
         }
       }
+      break;
+    }
+
+    case 7: { //AOROM — no CHR ROM
       break;
     }
   }
@@ -454,115 +606,4 @@ void restoreNesSave() {
     writePrg(0x6000 + x, buffer[x % 64]);
   }
   NES_ROMSEL_HIGH;
-}
-
-void eeprom_write_page(byte deviceaddress, uint8_t eeaddr, const byte* data, byte length) {
-  Wire.beginTransmission(deviceaddress);
-  Wire.write(int(eeaddr));
-  for (int i = 0; i < length; i++) Wire.write(data[i]);
-  Wire.endTransmission();
-  delay(1);
-}
-
-int eeprom_read_buffer(byte deviceaddr, uint8_t eeaddr, byte* buffer, byte length) {
-  Wire.beginTransmission(deviceaddr);
-  Wire.write(int(eeaddr));
-  Wire.endTransmission(false);
-  Wire.requestFrom(deviceaddr, length);
-  int i;
-  for (i = 0; i < length && Wire.available(); i++) buffer[i] = Wire.read();
-  return i;
-}
-
-void loop() {
-  if (Serial.available() > 0) {
-    uint8_t op = Serial.read();
-    switch (op) {
-      case 0x01: {
-        Serial.print("SCARAB");
-        break;
-      }
-
-      case 0x02: {
-        byte myBuff[8];
-        eeprom_read_buffer(EEPROM_CONTROL_ADDRESS, 0x00, myBuff, 0x08);
-        Serial.write(myBuff, 8);
-        break;
-      }
-
-      case 0x03: {
-        byte myBuff[8];
-        while (Serial.available() < 8) {}
-        for (int i = 0; i < 8; i++) myBuff[i] = Serial.read();
-        eeprom_write_page(EEPROM_CONTROL_ADDRESS, 0x00, myBuff, 0x08);
-        Serial.println("OK");
-        break;
-      }
-
-      case 0x20: {
-        while (Serial.available() < 2) {}
-        uint8_t mapper = Serial.read();
-        uint8_t banks = Serial.read();
-        testPrgDataPins(mapper, banks);
-        break;
-      }
-      case 0x21: {
-        while (Serial.available() < 2) {}
-        uint8_t mapper = Serial.read();
-        uint8_t banks = Serial.read();
-        testChrDataPins(mapper, banks);
-        break;
-      }
-
-      case 0x30: {
-        while (Serial.available() < 2) {}
-        uint8_t mapper = Serial.read();
-        uint8_t banks = Serial.read();
-        uint32_t crc = calcPrgCrc32(mapper, banks);
-        Serial.write((crc >> 24) & 0xFF);
-        Serial.write((crc >> 16) & 0xFF);
-        Serial.write((crc >>  8) & 0xFF);
-        Serial.write(crc & 0xFF);
-        break;
-      }
-
-      case 0x31: {
-        while (Serial.available() < 2) {}
-        uint8_t mapper = Serial.read();
-        uint8_t banks = Serial.read();
-        uint32_t crc = calcChrCrc32(mapper, banks);
-        Serial.write((crc >> 24) & 0xFF);
-        Serial.write((crc >> 16) & 0xFF);
-        Serial.write((crc >>  8) & 0xFF);
-        Serial.write(crc & 0xFF);
-        break;
-      }
-
-      case 0x40: {
-        while (Serial.available() < 2) {}
-        uint8_t mapper = Serial.read();
-        uint8_t banks = Serial.read();
-        dumpPrgRom(mapper, banks);
-        break;
-      }
-
-      case 0x41: {
-        while (Serial.available() < 2) {}
-        uint8_t mapper = Serial.read();
-        uint8_t banks = Serial.read();
-        dumpChrRom(mapper, banks);
-        break;
-      }
-
-      case 0x50: {
-        dumpNesSave();
-        break;
-      }
-
-      case 0x51: {
-        restoreNesSave();
-        break;
-      }
-    }
-  }
 }

@@ -3,6 +3,26 @@ import serial
 from Modules import Module_Base
 
 class snes_module(Module_Base.scarab_module):
+    
+    """
+    SNES/Super Nintendo cartridge module.
+
+    Identification strategy:
+      1. Read header from location 0x00FFC0 to 0x00FFDF
+      2. Parse header for necessary information.
+
+    SNES header byte positions (32 bytes):
+        0-20    Cartridge Title (21 bytes uppercase ASCII. Unused bytes should be spaces.)
+        21      ROM speed and memory map mode (LoROM/HiROM/ExHiROM)
+        22      Chipset (Indicates if a cartridge contains extra RAM, a battery, and/or a coprocessor)
+        23      ROM size: 1<<N kilobytes, rounded up (so 8=256KB, 12=4096KB and so on)
+        24      RAM size: 1<<N kilobytes (so 1=2KB, 5=32KB, and so on)
+        25      Country (Implies NTSC/PAL)
+        26      Developer ID
+        27      ROM version (0 = first)
+        28-29   Checksum complement (Checksum ^ $FFFF)
+        30-31   Checksum
+    """
     SNES_CHIPSET = [
         "ROM Only",
         "ROM + RAM",
@@ -23,11 +43,6 @@ class snes_module(Module_Base.scarab_module):
         0xE: "Other",
         0xF: "Custom",
     }
-    
-    API_ID = 6
-    
-    def getApiId(self):
-        return self.API_ID
     
     def getIdString(self):
         return "SNES"

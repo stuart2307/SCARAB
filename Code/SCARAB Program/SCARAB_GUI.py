@@ -78,6 +78,7 @@ class SCARABGUI:
         self.men_home.ui.re_identify_button.clicked.connect(self.identifyScarab)
         self.options.ui.save_settings.clicked.connect(self.saveSettings)
         self.options.ui.cancel_changes.clicked.connect(self.getSettings)
+        self.options.ui.write_to_eeprom.clicked.connect(self.writeEEPROM)
 
     def identifyScarab(self):
         prev_screen = self.view.getScreen()
@@ -95,6 +96,7 @@ class SCARABGUI:
         self.view.switchScreen(prev_screen)
         
     def detectCartridge(self):
+        self.scarab.cartridge.clear()
         if self.scarab.currentModule is not None:
             if self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge):
                 print(self.scarab.cartridge)
@@ -102,7 +104,7 @@ class SCARABGUI:
                 romsize = str(self.scarab.cartridge.get("romsize", 0)) + "KB"
                 chipset = self.scarab.cartridge.get("chipset", "N/A")
                 checksum = self.scarab.cartridge.get("checksum", "N/A")
-                image = self.game_image_manager.getImageByName(self.scarab.cartridge.get("name", "N/A"), self.scarab.currentModule.getIdString(), self.settings["API"]["gamesdbapikey"], self.scarab.currentModule.getApiId())
+                image = self.game_image_manager.getImageByName(self.scarab.cartridge.get("name", "N/A"), self.scarab.currentModule.getIdString(), self.settings["API"]["gamesdbapikey"], 0)
                 if image is not None:
                     self.setImages(image)
                 self.mod_modules.setGame(name)
@@ -122,6 +124,11 @@ class SCARABGUI:
         self.sm_restore.setImage(image)
         self.sm_save_menu.setImage(image)
         self.sm_select_restore.setImage(image)
+        
+    def writeEEPROM(self):
+        string = self.options.getEEPROMValue()
+        self.scarab.writeEeprom(string)
+        self.view.displayMessage("EEPROM Written.")
     
     def dumpSave(self):
         if not self.cartSafetyCheck():
@@ -165,13 +172,19 @@ class SCARABGUI:
             if self.scarab.currentModule is not None:
                 self.men_home.setModule(self.scarab.currentModule.getIdString())
                 self.mod_modules.setModule(self.scarab.currentModule.getIdString())
-                self.detectCartridge()
+                self.view.repaint()
             else:
                 self.men_home.setModule("NONE")
                 self.mod_modules.setModule("NONE")
         except:
             self.men_home.setModule("NONE")
             self.mod_modules.setModule("NONE")
+            self.view.repaint()
+        try:
+            self.detectCartridge()
+        except Exception as e:
+            print(e.args)
+            pass
         
     def populateSaveLists(self):
         cons = File_Management.getConsolesList()

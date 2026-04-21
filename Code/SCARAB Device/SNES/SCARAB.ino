@@ -45,6 +45,9 @@ void loop() {
       case 0x02:{
         byte myBuff[8];
         eeprom_read_buffer(0x50, 0x00, myBuff, 0x08);
+        String mod = (char *)myBuff;
+        if (mod.equalsIgnoreCase("SNES    ")) {snes_setup();}
+        if (mod.equalsIgnoreCase("NES     ")) {nes_setup();}
         Serial.write(myBuff, 8);
         break;
       }
@@ -59,11 +62,13 @@ void loop() {
         break;
       }
       case 0x11:{
+        snes_setup();
         uint8_t buffer[64];
         readSnesHeader(buffer, SNES_HEADER_START, SNES_HEADER_END, 'H');
         Serial.write(buffer, SNES_HEADER_SIZE);
         break;}
       case 0x12:{
+        snes_setup();
         uint8_t header[64];
         readSnesHeader(header, SNES_HEADER_START, SNES_HEADER_END, 'H');
         uint8_t headerCheck[64];
@@ -82,13 +87,33 @@ void loop() {
           if (exHiRom) {Serial.write('X');}
           else {Serial.write('H');}
         }
-        break;}
+        break;
+      }
       case 0x20:{
+        snes_setup();
         testDataPinsSnes('H');
         break;}
 
+      case 0x21: {
+        while (Serial.available() < 2) {}
+        nes_setup();
+        uint8_t mapper = Serial.read();
+        uint8_t banks = Serial.read();
+        testPrgDataPins(mapper, banks);
+        break;
+      }
+      case 0x22: {
+        while (Serial.available() < 2) {}
+        nes_setup();
+        uint8_t mapper = Serial.read();
+        uint8_t banks = Serial.read();
+        testChrDataPins(mapper, banks);
+        break;
+      }
+      
       case 0x30:{
         while(Serial.available() < 2){}
+        snes_setup();
         uint8_t romPow = Serial.read();
         char romType = Serial.read();
         uint64_t romSize = 1024UL << romPow;
@@ -99,9 +124,36 @@ void loop() {
         Serial.write(lower);
         break;
       }
+
+      case 0x31: {
+        while (Serial.available() < 2) {}
+        nes_setup();
+        uint8_t mapper = Serial.read();
+        uint8_t banks = Serial.read();
+        uint32_t crc = calcPrgCrc32(mapper, banks);
+        Serial.write((crc >> 24) & 0xFF);
+        Serial.write((crc >> 16) & 0xFF);
+        Serial.write((crc >>  8) & 0xFF);
+        Serial.write(crc & 0xFF);
+        break;
+      }
+
+      case 0x32: {
+        while (Serial.available() < 2) {}
+        nes_setup();
+        uint8_t mapper = Serial.read();
+        uint8_t banks = Serial.read();
+        uint32_t crc = calcChrCrc32(mapper, banks);
+        Serial.write((crc >> 24) & 0xFF);
+        Serial.write((crc >> 16) & 0xFF);
+        Serial.write((crc >>  8) & 0xFF);
+        Serial.write(crc & 0xFF);
+        break;
+      }
         
       case 0x40:{
         while(Serial.available() < 2){}
+        snes_setup();
         uint8_t ramPow = Serial.read();
         char romType = Serial.read();
         uint64_t ramSize = 1024 * pow(2, ramPow);
@@ -110,11 +162,61 @@ void loop() {
       }
       case 0x41:{
         while(Serial.available() < 2){}
+        snes_setup();
         uint8_t ramPow = Serial.read();
         char romType = Serial.read();
         uint64_t ramSize = 1024 * pow(2, ramPow);
         prepSnesWrite();
         restoreSnesSave(ramSize, romType);
+        break;
+      }
+      case 0x50: {
+        nes_setup();
+        dumpNesSave();
+        break;
+      }
+
+      case 0x51: {
+        nes_setup();
+        restoreNesSave();
+        break;
+      }
+      case 0x60: {
+        while (Serial.available() < 2) {}
+        nes_setup();
+        uint8_t base_page = Serial.read();
+        uint8_t num_banks = Serial.read();
+        uint16_t base_addr = base_page ? 0xE000 : 0x8000;
+        uint8_t buffer[64];
+        prepPrgRead();
+        NES_ROMSEL_LOW;
+        for (uint8_t b = 0; b < num_banks; b++) {
+          for (uint16_t x = 0; x < 0x2000; x++) {
+            buffer[x % 64] = readPrg(base_addr + x);
+            if (x % 64 == 63) {
+              Serial.write(buffer, 64);
+              Serial.flush();
+              while (Serial.available() < 1) {}
+              Serial.read();
+            }
+          }
+        }
+        NES_ROMSEL_HIGH;
+        break;
+      }
+    case 0x70: {
+        while (Serial.available() < 2) {}
+        uint8_t mapper = Serial.read();
+        uint8_t banks = Serial.read();
+        dumpPrgRom(mapper, banks);
+        break;
+      }
+
+      case 0x71: {
+        while (Serial.available() < 2) {}
+        uint8_t mapper = Serial.read();
+        uint8_t banks = Serial.read();
+        dumpChrRom(mapper, banks);
         break;
       }
     }
