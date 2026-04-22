@@ -145,6 +145,7 @@ class Ui_browse_saves(object):
         self.cart_image = QLabel(browse_saves)
         self.cart_image.setObjectName(u"cart_image")
         self.cart_image.setGeometry(QRect(50, 70, 240, 180))
+        self.cart_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.retranslateUi(browse_saves)
 

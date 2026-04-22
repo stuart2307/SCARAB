@@ -127,10 +127,11 @@ class Ui_check_health_menu(object):
         self.custom_scan_button.setFont(font)
         self.formLayoutWidget = QWidget(check_health_menu)
         self.formLayoutWidget.setObjectName(u"formLayoutWidget")
-        self.formLayoutWidget.setGeometry(QRect(60, 293, 531, 171))
+        self.formLayoutWidget.setGeometry(QRect(60, 300, 531, 171))
         self.formLayout = QFormLayout(self.formLayoutWidget)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.formLayout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
         self.formLayout.setContentsMargins(0, 0, 0, 0)
         self.name_label = QLabel(self.formLayoutWidget)
         self.name_label.setObjectName(u"name_label")
@@ -146,6 +147,14 @@ class Ui_check_health_menu(object):
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.rom_sz_label)
 
+        self.rom_size = QLabel(self.formLayoutWidget)
+        self.rom_size.setObjectName(u"rom_size")
+        self.rom_size.setFont(font)
+        self.rom_size.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.rom_size.setWordWrap(False)
+
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.rom_size)
+
         self.chip_label = QLabel(self.formLayoutWidget)
         self.chip_label.setObjectName(u"chip_label")
         self.chip_label.setFont(font)
@@ -159,37 +168,34 @@ class Ui_check_health_menu(object):
 
         self.formLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.hdr_chk_label)
 
+        self.checksum = QLabel(self.formLayoutWidget)
+        self.checksum.setObjectName(u"checksum")
+        self.checksum.setFont(font)
+        self.checksum.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.checksum.setWordWrap(False)
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.checksum)
+
         self.name = QLabel(self.formLayoutWidget)
         self.name.setObjectName(u"name")
         self.name.setFont(font)
         self.name.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.name.setWordWrap(False)
 
         self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.name)
-
-        self.rom_size = QLabel(self.formLayoutWidget)
-        self.rom_size.setObjectName(u"rom_size")
-        self.rom_size.setFont(font)
-        self.rom_size.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.rom_size)
 
         self.chipset = QLabel(self.formLayoutWidget)
         self.chipset.setObjectName(u"chipset")
         self.chipset.setFont(font)
         self.chipset.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.chipset.setWordWrap(False)
 
         self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.chipset)
-
-        self.checksum = QLabel(self.formLayoutWidget)
-        self.checksum.setObjectName(u"checksum")
-        self.checksum.setFont(font)
-        self.checksum.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.checksum)
 
         self.cart_image = QLabel(check_health_menu)
         self.cart_image.setObjectName(u"cart_image")
         self.cart_image.setGeometry(QRect(190, 70, 266, 200))
+        self.cart_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.retranslateUi(check_health_menu)
 
@@ -203,12 +209,12 @@ class Ui_check_health_menu(object):
         self.custom_scan_button.setText(QCoreApplication.translate("check_health_menu", u"Custom Scan", None))
         self.name_label.setText(QCoreApplication.translate("check_health_menu", u"Name:", None))
         self.rom_sz_label.setText(QCoreApplication.translate("check_health_menu", u"ROM Size:", None))
-        self.chip_label.setText(QCoreApplication.translate("check_health_menu", u"Chipset:", None))
-        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_menu", u"Header Checksum:", None))
-        self.name.setText("")
         self.rom_size.setText("")
-        self.chipset.setText("")
+        self.chip_label.setText(QCoreApplication.translate("check_health_menu", u"Chipset:", None))
+        self.hdr_chk_label.setText(QCoreApplication.translate("check_health_menu", u"Checksum:", None))
         self.checksum.setText("")
+        self.name.setText("")
+        self.chipset.setText("")
         self.cart_image.setText("")
     # retranslateUi
 

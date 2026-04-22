@@ -177,6 +177,7 @@ class Ui_check_health_custom_scan(object):
         self.cart_image = QLabel(check_health_custom_scan)
         self.cart_image.setObjectName(u"cart_image")
         self.cart_image.setGeometry(QRect(190, 70, 266, 200))
+        self.cart_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.retranslateUi(check_health_custom_scan)
 

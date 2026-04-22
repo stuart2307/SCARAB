@@ -79,6 +79,8 @@ class SCARABGUI:
         self.options.ui.save_settings.clicked.connect(self.saveSettings)
         self.options.ui.cancel_changes.clicked.connect(self.getSettings)
         self.options.ui.write_to_eeprom.clicked.connect(self.writeEEPROM)
+        self.sm_save_browse.ui.rename_button.clicked.connect(self.allowRename)
+        self.sm_save_browse.ui.save_list.itemDelegate().commitData.connect(self.renameSave)
 
     def identifyScarab(self):
         prev_screen = self.view.getScreen()
@@ -101,10 +103,10 @@ class SCARABGUI:
             if self.scarab.currentModule.detectCartridge(self.scarab.scarab, self.scarab.cartridge):
                 print(self.scarab.cartridge)
                 name = self.scarab.cartridge.get("name", "N/A")
-                romsize = str(self.scarab.cartridge.get("romsize", 0)) + "KB"
+                romsize = self.scarab.cartridge.get("romsize", 0)
                 chipset = self.scarab.cartridge.get("chipset", "N/A")
                 checksum = self.scarab.cartridge.get("checksum", "N/A")
-                image = self.game_image_manager.getImageByName(self.scarab.cartridge.get("name", "N/A"), self.scarab.currentModule.getIdString(), self.settings["API"]["gamesdbapikey"], 0)
+                image = self.game_image_manager.getImageByName(self.scarab.cartridge.get("name", "N/A"), self.scarab.currentModule.getIdString())
                 if image is not None:
                     self.setImages(image)
                 self.mod_modules.setGame(name)
@@ -166,6 +168,19 @@ class SCARABGUI:
         self.sm_restore.restoredSetup()
         self.view.enableButtons()
         
+    def allowRename(self):
+        self.old_save = self.sm_save_browse.getSelectedSave()
+        self.sm_save_browse.allowRename()
+        
+    def renameSave(self):
+        save = self.sm_save_browse.getSelectedSave()
+        File_Management.renameSave(self.sm_save_browse.current_console, self.sm_save_browse.current_game, self.old_save, save)
+        self.view.displayMessage("Save Renamed.")
+        console = self.sm_save_browse.current_console
+        game = self.sm_save_browse.current_game
+        saves = File_Management.getSavesByGame(console, game)
+        self.sm_save_browse.populateSaves(saves, console, game)
+        
     def identifyModule(self):
         try:
             self.scarab.identifyModule()
@@ -203,7 +218,7 @@ class SCARABGUI:
                 self.view.displayMessage("Game not selected.", is_error=True)
                 return
             saves = File_Management.getSavesByGame(console, game)
-            self.sm_save_browse.populateSaves(saves, console)
+            self.sm_save_browse.populateSaves(saves, console, game)
             self.sm_save_browse.current_console = console
             self.sm_save_browse.current_game = game
         else:
@@ -216,7 +231,7 @@ class SCARABGUI:
             game = self.scarab.cartridge.get("name", "N/A")
             saves = File_Management.getSavesByGame(console, game)
             self.sm_save_browse.populateSaves(saves, console, game)
-        img = self.game_image_manager.getImageByName(game, console, self.settings["API"]["gamesdbapikey"], self.scarab.currentModule.getApiId())
+        img = self.game_image_manager.getImageByName(game, console)
         self.sm_save_browse.setImage(img)
         self.view.switchScreen(self.sm_save_browse)
         
@@ -283,6 +298,9 @@ class SCARABGUI:
                 mismatches += 1
         percent = round(((total - mismatches) / total) * 100, 2)
         self.ch_scanning.displayResults("retention", True, str(percent) + "% Match")
+        temp = File_Management.retentionReadTempSave(self.scarab.cartridge["name"])
+        self.scarab.restoreSave(temp)
+        File_Management.deleteSave(self.scarab.cartridge["name"], "TEMP", "")
         self.ch_scanning.checksDone()
         self.view.enableButtons()
     

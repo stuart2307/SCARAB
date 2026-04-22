@@ -24,7 +24,7 @@ class scarab_module(ABC):
         pass
     
     @abstractmethod
-    def dumpSave(self, device: serial.Serial, cartDetails: dict):
+    def dumpSave(self, device: serial.Serial, cartDetails: dict) -> bytes:
         pass
     
     @abstractmethod

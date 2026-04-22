@@ -136,6 +136,7 @@ class Ui_save_management(object):
         self.cart_image = QLabel(save_management)
         self.cart_image.setObjectName(u"cart_image")
         self.cart_image.setGeometry(QRect(170, 90, 320, 240))
+        self.cart_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.retranslateUi(save_management)
 

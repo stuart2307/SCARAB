@@ -8,7 +8,7 @@ class Game_Imagery():
     def __init__(self):
         pass
     
-    def getImageByName(self, name: str, platform: str, api_key: str, api_id: int):
+    def getImageByName(self, name: str, platform: str):
         if self.IMAGES_PATH.joinpath(platform).exists():
             print(name)
             print('\"' + platform + '\"')

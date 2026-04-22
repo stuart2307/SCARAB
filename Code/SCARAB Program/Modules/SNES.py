@@ -79,7 +79,7 @@ class snes_module(Module_Base.scarab_module):
             if header[22] & 15 > 0x2:
                 cartDetails["coprocessor"] = self.SNES_COPROCESSORS[header[22] >> 4]
                 #print("Coprocessor:  ", self.SNES_COPROCESSORS[header[22] >> 4])
-            cartDetails["romsize"] = 1 << header[23]
+            cartDetails["romsize"] = str(1 << header[23]) + "KB"
             cartDetails["romexp"] = header[23]
             #print("ROM Size: ", 1 << header[23], "KB")
             if "RAM" not in cartDetails["chipset"]:
@@ -121,7 +121,7 @@ class snes_module(Module_Base.scarab_module):
     def testSaveRetention(self, device: serial.Serial, cartDetails: dict):
         return True
 
-    def dumpSave(self, device: serial.Serial, cartDetails: dict):
+    def dumpSave(self, device: serial.Serial, cartDetails: dict) -> bytes:
         device.write(b'\x40')
         device.write(bytes((cartDetails["saveexp"],)))
         device.write(cartDetails["romtype"])

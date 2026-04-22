@@ -164,6 +164,7 @@ class Ui_check_health_in_progress(object):
         self.cart_image = QLabel(check_health_in_progress)
         self.cart_image.setObjectName(u"cart_image")
         self.cart_image.setGeometry(QRect(190, 70, 266, 200))
+        self.cart_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.unplug_label = QLabel(check_health_in_progress)
         self.unplug_label.setObjectName(u"unplug_label")
         self.unplug_label.setGeometry(QRect(30, 410, 591, 151))

@@ -76,7 +76,7 @@ class scarab_device():
         time.sleep(0.1)
         self.scarab.read(2)
         
-    def dumpSave(self):
+    def dumpSave(self) -> bytes:
         return self.currentModule.dumpSave(self.scarab, self.cartridge)
     
     def restoreSave(self, buffer: bytes):

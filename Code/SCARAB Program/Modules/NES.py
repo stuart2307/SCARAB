@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from time import sleep
 import serial
 import zlib
@@ -238,10 +239,7 @@ class nes_module(Module_Base.scarab_module):
  
     def _pick_best(self, candidates: list, cartDetails: dict, ambiguous: bool = False) -> bool:
         """Choose the candidate with the smallest PRG when still ambiguous."""
-        candidates_sorted = sorted(
-            candidates,
-            key=lambda c: self._parse_header(c["header_bytes"])["prg_banks"]
-        )
+        candidates_sorted = sorted(candidates, key=lambda c: self._parse_header(c["header_bytes"])["prg_banks"])
         best = candidates_sorted[0]
         return self._apply_match(best, cartDetails, ambiguous=ambiguous)
  
@@ -268,10 +266,10 @@ class nes_module(Module_Base.scarab_module):
     #  Pin testing                                                        #
     # ------------------------------------------------------------------ #
     def testPins(self, device: serial.Serial, cartDetails: dict) -> bool:
-        mapper    = cartDetails["mapper"]
+        mapper = cartDetails["mapper"]
         prg_banks = cartDetails["prg_banks"]
         chr_banks = cartDetails.get("chr_banks", 0)
-        has_chr   = cartDetails.get("has_chr_rom", True)
+        has_chr = cartDetails.get("has_chr_rom", True)
         ok = True
  
         print("Testing PRG data pins...")
@@ -316,10 +314,14 @@ class nes_module(Module_Base.scarab_module):
     # ------------------------------------------------------------------ #
     def calculateChecksum(self, device: serial.Serial, cartDetails: dict) -> bool:
         rom = self.dumpRom(device, cartDetails)
+        #file = Path("GodzillaDump.nes")
+        #file.write_bytes(rom)
         # Strip the 16 byte iNES header before hashing, matching nes.txt
         computed = f"{zlib.crc32(rom[16:]) & 0xFFFFFFFF:08X}"
         expected = cartDetails.get("checksum", "")
-        match    = computed.upper() == expected.upper()
+        print(f"CALCED CRC32: 0x{computed}")
+        print(f"TRUE CRC32: 0x{expected}")
+        match = computed.upper() == expected.upper()
         return match
     #    mapper    = cartDetails["mapper"]
     #    prg_banks = cartDetails["prg_banks"]
@@ -354,29 +356,43 @@ class nes_module(Module_Base.scarab_module):
     # ------------------------------------------------------------------ #
     def dumpRom(self, device: serial.Serial, cartDetails: dict) -> bytes:
         """Dump PRG + CHR and return a complete iNES-headered ROM image."""
-        mapper    = cartDetails["mapper"]
+        mapper = cartDetails["mapper"]
         prg_banks = cartDetails["prg_banks"]
         chr_banks = cartDetails.get("chr_banks", 0)
-        has_chr   = cartDetails.get("has_chr_rom", True)
+        has_chr = cartDetails.get("has_chr_rom", True)
  
         prg_size = prg_banks * 0x4000
+        chr_banks_actual = chr_banks * 2 if mapper == 1 else chr_banks
         chr_size = (chr_banks * 0x2000) if (has_chr and chr_banks > 0) else 0
  
         print(f"Dumping PRG ROM ({prg_size // 1024} KB)...")
         device.write(bytes([self.OP_DUMP_PRG, mapper, prg_banks]))
-        prg_data = device.read(prg_size)
+        prg_data = b''
+        for i in range(prg_size // 64):
+            chunk = device.read(64)
+            print(f"chunk {i * 64} in.")
+            if len(chunk) < 64:
+                break
+            prg_data += chunk
+            device.write(b'K')
         print(f"  Received {len(prg_data)} / {prg_size} bytes.")
  
         chr_data = b''
         if chr_size > 0:
             print(f"Dumping CHR ROM ({chr_size // 1024} KB)...")
-            device.write(bytes([self.OP_DUMP_CHR, mapper, chr_banks]))
-            chr_data = device.read(chr_size)
+            device.write(bytes([self.OP_DUMP_CHR, mapper, chr_banks_actual]))
+            chr_data = b''
+            for i in range(chr_size // 64):
+                chunk = device.read(64)
+                print(f"chunk {i * 64} in.")
+                if len(chunk) < 64:
+                    break
+                chr_data += chunk
+                device.write(b'K')
             print(f"  Received {len(chr_data)} / {chr_size} bytes.")
  
         # Prefer the exact header from the database
-        header = cartDetails.get("header_bytes") or \
-                 self._build_ines_header(mapper, prg_banks, chr_banks if has_chr else 0)
+        header = cartDetails.get("header_bytes") or self._build_ines_header(mapper, prg_banks, chr_banks if has_chr else 0)
         return header + prg_data + chr_data
  
     def _build_ines_header(self, mapper: int, prg_banks: int,

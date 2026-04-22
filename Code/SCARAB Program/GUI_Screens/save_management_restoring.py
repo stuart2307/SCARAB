@@ -138,6 +138,7 @@ class Ui_restoring_save(object):
         self.cart_image = QLabel(restoring_save)
         self.cart_image.setObjectName(u"cart_image")
         self.cart_image.setGeometry(QRect(50, 70, 240, 180))
+        self.cart_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.retranslateUi(restoring_save)
 

@@ -44,6 +44,13 @@ def readSave(current_module: str, cartridge_name: str, save_name: str) -> bytes:
     save_path = SAVE_PATH.joinpath(getExistingSaveFilePath(current_module, cartridge_name, save_name))
     return save_path.read_bytes()
 
+def renameSave(console: str, game: str, old_name: str, new_name: str):
+    if not new_name.endswith('.sav'):
+        new_name += '.sav'
+    old_path = SAVE_PATH.joinpath(getExistingSaveFilePath(console, game, old_name))
+    new_path = old_path.parent.joinpath(sanitiseString(new_name))
+    old_path.rename(new_path)
+
 def sanitiseString(string: str):
     return re.sub(r'[<>:"/\\|?*\x00-\x1F]', '_', string.strip())
 
@@ -53,7 +60,7 @@ def retentionWriteTempSave(buffer: bytes, cartridge_name: str):
     
 def retentionReadTempSave(cartridge_name: str):
     cartridge_name = sanitiseString(cartridge_name)
-    path = SAVE_PATH.joinpath("TEST/" + cartridge_name + ".sav")
+    path = SAVE_PATH.joinpath("TEMP/" + cartridge_name + ".sav")
     return path.read_bytes()
 
 def deleteSave(filename: str, console: str, game: str):

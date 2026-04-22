@@ -1,5 +1,5 @@
 from GUI_Screens import save_management_browse_saves
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QInputDialog, QWidget
 from PySide6.QtCore import QStringListModel
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
@@ -27,3 +27,6 @@ class browse_saves(QWidget):
         image_pixmap.loadFromData(image)
         scaled = image_pixmap.scaled(self.ui.cart_image.size(),Qt.AspectRatioMode.KeepAspectRatio,Qt.TransformationMode.SmoothTransformation)
         self.ui.cart_image.setPixmap(scaled)
+        
+    def allowRename(self):
+        self.ui.save_list.edit(self.ui.save_list.currentIndex())

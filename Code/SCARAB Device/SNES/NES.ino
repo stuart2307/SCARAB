@@ -42,7 +42,6 @@ void prepPrgRead() {
 
 void prepPrgWrite() {
   DDRA = 0xFF;
-  NES_CPU_RW_WRITE;
   delayMicroseconds(10);
 }
 
@@ -53,27 +52,59 @@ void prepChrRead() {
   delayMicroseconds(10);
 }
 
+void setRomsel(unsigned int address) {
+  if (address & 0x8000) {
+    NES_ROMSEL_LOW;
+  } else {
+    NES_ROMSEL_HIGH;
+  }
+}
+
 uint8_t readPrg(uint16_t address) {
   NES_PRG_LOW_ADD = address & 0xFF;
   NES_PRG_UPP_ADD = (address >> 8) & 0xFF;
   delayMicroseconds(1);
   NES_CPU_RW_READ;
+  NES_M2_HIGH;
+  delayMicroseconds(1);
   uint8_t data = NES_PRG_DATA;
   return data;
 }
 
 void writePrg(uint16_t address, uint8_t data) {
+  NES_M2_LOW;
+  NES_ROMSEL_HIGH;
+  prepPrgWrite();
+  NES_CPU_RW_WRITE;
+  PORTA = data;
+
   NES_PRG_LOW_ADD = address & 0xFF;
   NES_PRG_UPP_ADD = (address >> 8) & 0xFF;
-  PORTA = data;
+  NES_M2_HIGH;
+  setRomsel(address);
   delayMicroseconds(1);
+  NES_M2_LOW;
+  NES_ROMSEL_HIGH;
+
+  NES_CPU_RW_READ;
+  prepPrgRead();
+  NES_CPU_RW_READ;
+  NES_PRG_LOW_ADD = 0;
+  NES_PRG_UPP_ADD = 0;
+  NES_M2_HIGH;
 }
 
 uint8_t readChr(uint16_t address) {
+  prepChrRead();
+  NES_M2_HIGH;
+  NES_ROMSEL_HIGH; 
   NES_CHAR_LOW_ADD = address & 0xFF;
   NES_CHAR_UPP_ADD = (address >> 8) & 0xFF;
+  NES_CHAR_READ_LOW;
   delayMicroseconds(1);
-  return NES_CHAR_DATA;
+  uint8_t data = NES_CHAR_DATA;
+  NES_CHAR_READ_HIGH;
+  return data;
 }
 
 void mmc1Reset() {
@@ -139,7 +170,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
       uint32_t size = (uint32_t)banks * 0x4000;
       for (uint32_t x = 0; x < size; x++) {
         buffer[x % 64] = readPrg(0x8000 + (x & 0x7FFF));
-        if (x % 64 == 63) Serial.write(buffer, 64);
+        if (x % 64 == 63) {
+          Serial.write(buffer, 64);
+          while (Serial.available() < 1) {}
+          Serial.read();
+        }
       }
       NES_ROMSEL_HIGH;
       break;
@@ -154,7 +189,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
         NES_ROMSEL_LOW;
         for (uint16_t x = 0; x < 0x4000; x++) {
           buffer[x % 64] = readPrg(0x8000 + x);
-          if (x % 64 == 63) Serial.write(buffer, 64);
+          if (x % 64 == 63) {
+            Serial.write(buffer, 64);
+            while (Serial.available() < 1) {}
+            Serial.read();
+          }
         }
         NES_ROMSEL_HIGH;
       }
@@ -162,7 +201,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
       NES_ROMSEL_LOW;
       for (uint16_t x = 0; x < 0x4000; x++) {
         buffer[x % 64] = readPrg(0xC000 + x);
-        if (x % 64 == 63) Serial.write(buffer, 64);
+        if (x % 64 == 63) {
+          Serial.write(buffer, 64);
+          while (Serial.available() < 1) {}
+          Serial.read();
+        }
       }
       NES_ROMSEL_HIGH;
       break;
@@ -175,7 +218,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
         NES_ROMSEL_LOW;
         for (uint16_t x = 0; x < 0x4000; x++) {
           buffer[x % 64] = readPrg(0x8000 + x);
-          if (x % 64 == 63) Serial.write(buffer, 64);
+          if (x % 64 == 63) {
+            Serial.write(buffer, 64);
+            while (Serial.available() < 1) {}
+            Serial.read();
+          }
         }
         NES_ROMSEL_HIGH;
       }
@@ -184,7 +231,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
       NES_ROMSEL_LOW;
       for (uint16_t x = 0; x < 0x4000; x++) {
         buffer[x % 64] = readPrg(0xC000 + x);
-        if (x % 64 == 63) Serial.write(buffer, 64);
+        if (x % 64 == 63) {
+          Serial.write(buffer, 64);
+          while (Serial.available() < 1) {}
+          Serial.read();
+        }
       }
       NES_ROMSEL_HIGH;
       break;
@@ -197,7 +248,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
         NES_ROMSEL_LOW;
         for (uint16_t x = 0; x < 0x2000; x++) {
           buffer[x % 64] = readPrg(0x8000 + x);
-          if (x % 64 == 63) Serial.write(buffer, 64);
+          if (x % 64 == 63) {
+            Serial.write(buffer, 64);
+            while (Serial.available() < 1) {}
+            Serial.read();
+          }
         }
         NES_ROMSEL_HIGH;
       }
@@ -205,7 +260,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
       NES_ROMSEL_LOW;
       for (uint16_t x = 0; x < 0x2000; x++) {
         buffer[x % 64] = readPrg(0xE000 + x);
-        if (x % 64 == 63) Serial.write(buffer, 64);
+        if (x % 64 == 63) {
+          Serial.write(buffer, 64);
+          while (Serial.available() < 1) {}
+          Serial.read();
+        }
       }
       NES_ROMSEL_HIGH;
       break;
@@ -218,7 +277,11 @@ void dumpPrgRom(uint8_t mapper, uint8_t banks) {
         NES_ROMSEL_LOW;
         for (uint16_t x = 0; x < 0x8000; x++) {
           buffer[x % 64] = readPrg(0x8000 + x);
-          if (x % 64 == 63) Serial.write(buffer, 64);
+          if (x % 64 == 63) {
+            Serial.write(buffer, 64);
+            while (Serial.available() < 1) {}
+            Serial.read();
+          }
         }
         NES_ROMSEL_HIGH;
       }
@@ -236,20 +299,28 @@ void dumpChrRom(uint8_t mapper, uint8_t banks) {
       uint32_t size = (uint32_t)banks * 0x2000;
       for (uint32_t x = 0; x < size; x++) {
         buffer[x % 64] = readChr(x & 0x1FFF);
-        if (x % 64 == 63) Serial.write(buffer, 64);
+        if (x % 64 == 63) {
+          Serial.write(buffer, 64);
+          while (Serial.available() < 1) {}
+          Serial.read();
+        }
       }
       break;
     }
 
     case 1: { //MMC1
       mmc1Reset();
-      mmc1WriteReg(0x8000, 0x0C);
-      for (uint8_t bank = 0; bank < banks; bank++) {
+      mmc1WriteReg(0x8000, 0x00);
+      for (uint8_t bank = 0; bank < banks; bank += 2) {
         mmc1WriteReg(0xA000, bank);
         prepChrRead();
-        for (uint16_t x = 0; x < 0x1000; x++) {
+        for (uint16_t x = 0; x < 0x2000; x++) {
           buffer[x % 64] = readChr(x);
-          if (x % 64 == 63) Serial.write(buffer, 64);
+          if (x % 64 == 63) {
+            Serial.write(buffer, 64);
+            while (Serial.available() < 1) {}
+            Serial.read();
+          }
         }
       }
       break;
@@ -266,7 +337,11 @@ void dumpChrRom(uint8_t mapper, uint8_t banks) {
         prepChrRead();
         for (uint16_t x = 0; x < 0x2000; x++) {
           buffer[x % 64] = readChr(x);
-          if (x % 64 == 63) Serial.write(buffer, 64);
+          if (x % 64 == 63) {
+            Serial.write(buffer, 64);
+            while (Serial.available() < 1) {}
+            Serial.read();
+          }
         }
       }
       break;
