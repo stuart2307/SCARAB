@@ -1,11 +1,11 @@
 from pathlib import Path
-from rapidfuzz import process, utils
+import sys
 
 class Game_Imagery():
-    IMAGES_PATH = Path(__file__).parent.parent.joinpath("Images")
-    BASE_API_URL = "api.thegamesdb.net"
+    IMAGES_PATH = (Path(sys.executable).parent if hasattr(sys, '_MEIPASS') else Path(__file__).parent.parent) / "Images"
     
     def __init__(self):
+        self.IMAGES_PATH.mkdir(parents=True, exist_ok=True)
         pass
     
     def getImageByName(self, name: str, platform: str):
@@ -21,8 +21,4 @@ class Game_Imagery():
         else:
             image = self.IMAGES_PATH.joinpath("cart_image_not_found.png")
             return image.read_bytes()
-        #elif api_key != "":
-        #    
-        #    return
-        #return None
     

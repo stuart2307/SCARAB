@@ -1,11 +1,15 @@
 from pathlib import Path
 import random
 import re
+import sys
 from time import gmtime
 import configparser
 
-SAVE_PATH = Path(__file__).parent.parent.joinpath("Saves")
-SETTINGS_PATH = Path(__file__).parent.parent.joinpath("settings.ini")
+BASE_PATH = Path(sys.executable).parent if hasattr(sys, '_MEIPASS') else Path(__file__).parent.parent
+
+SAVE_PATH = BASE_PATH / "Saves"
+SAVE_PATH.mkdir(parents=True, exist_ok=True)
+SETTINGS_PATH = BASE_PATH / "settings.ini"
 
 def getBasePath() -> Path:
     return SAVE_PATH

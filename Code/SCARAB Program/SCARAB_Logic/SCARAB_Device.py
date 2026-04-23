@@ -1,6 +1,8 @@
 import importlib
 import inspect
+from pathlib import Path
 import pkgutil
+import sys
 from Modules import Module_Base
 import Modules
 import serial, serial.tools.list_ports, time
@@ -14,6 +16,8 @@ MEGA_IDS = [
     (0x0403, 0x6001),
     (0x10C4, 0xEA60),
 ]
+MODULES_PATH = BASE_PATH = (Path(sys.executable).parent if hasattr(sys, '_MEIPASS') else Path(__file__).parent.parent) / "Modules"
+MODULES_PATH.mkdir(parents=True, exist_ok=True)
 
 class scarab_device():
     def __init__(self):
@@ -24,8 +28,12 @@ class scarab_device():
         self.loadSupportedModules()
         
     def loadSupportedModules(self):
-        for _, moduleName, _ in pkgutil.iter_modules(Modules.__path__):
-            module = importlib.import_module("Modules." + moduleName)
+        for module_file in MODULES_PATH.glob("*.py"):
+            if module_file.name.startswith("_"):
+                continue
+            spec = importlib.util.spec_from_file_location(module_file.stem, module_file)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
             for name, obj in inspect.getmembers(module):
                 if inspect.isclass(obj) and issubclass(obj, Module_Base.scarab_module) and obj is not Module_Base.scarab_module:
                     mod = obj()
