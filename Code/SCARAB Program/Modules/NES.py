@@ -1,3 +1,7 @@
+#SCARAB NES Module
+#Copyright (C) 2026 Stuart Rossiter
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import os
 from pathlib import Path
 from time import sleep
@@ -68,10 +72,6 @@ class nes_module(Module_Base.scarab_module):
         return os.path.join(os.path.dirname(__file__), "nes.txt")
  
     def _load_db(self) -> list:
-        """
-        Parse nes.txt into a list of dicts with keys:
-          name, full_crc, bank_crc, header_hex, header_bytes
-        """
         entries = []
         db = self._db_path()
         if not os.path.exists(db):
@@ -108,15 +108,9 @@ class nes_module(Module_Base.scarab_module):
                 except Exception:
                     pass
             i += 1
- 
-        print(f"[NES] Loaded {len(entries)} entries from database.")
         return entries
  
     def _parse_header(self, header: bytes) -> dict:
-        """
-        Decode a 16-byte iNES header into cartridge parameters.
-        Handles both iNES 1.0 and NES 2.0.
-        """
         if header[0:4] != b'NES\x1a':
             raise ValueError("Not a valid iNES header")
  
@@ -185,15 +179,15 @@ class nes_module(Module_Base.scarab_module):
                 bank_crc = f"{zlib.crc32(raw) & 0xFFFFFFFF:08X}"
                 candidates = [e for e in db if e["bank_crc"] == bank_crc]
                 if len(candidates) > 0:
-                    result = self._progressive_match(device, candidates, cartDetails)
+                    result = self.progressiveMatch(device, candidates, cartDetails)
                     if result:
                         return True
 
-            self._progressive_match(device, db, cartDetails)
+            self.progressiveMatch(device, db, cartDetails)
 
         return True
  
-    def _progressive_match(self, device: serial.Serial, candidates: list, cartDetails: dict) -> bool:
+    def progressiveMatch(self, device: serial.Serial, candidates: list, cartDetails: dict) -> bool:
         accumulated = b''
 
         for prg_banks_16k in self._PRG_STEPS:
@@ -231,20 +225,18 @@ class nes_module(Module_Base.scarab_module):
             if len(candidates) == 0:
                 return False
             if len(candidates) == 1:
-                return self._apply_match(candidates[0], cartDetails)
+                return self.applyMatch(candidates[0], cartDetails)
 
         if candidates:
-            return self._pick_best(candidates, cartDetails, ambiguous=True)
+            return self.pickBest(candidates, cartDetails, ambiguous=True)
         return False
  
-    def _pick_best(self, candidates: list, cartDetails: dict, ambiguous: bool = False) -> bool:
-        """Choose the candidate with the smallest PRG when still ambiguous."""
+    def pickBest(self, candidates: list, cartDetails: dict, ambiguous: bool = False) -> bool:
         candidates_sorted = sorted(candidates, key=lambda c: self._parse_header(c["header_bytes"])["prg_banks"])
         best = candidates_sorted[0]
-        return self._apply_match(best, cartDetails, ambiguous=ambiguous)
+        return self.applyMatch(best, cartDetails, ambiguous=ambiguous)
  
-    def _apply_match(self, entry: dict, cartDetails: dict, ambiguous: bool = False) -> bool:
-        """Populate cartDetails from a matched nes.txt entry."""
+    def applyMatch(self, entry: dict, cartDetails: dict, ambiguous: bool = False) -> bool:
         parsed = self._parse_header(entry["header_bytes"])
         cartDetails.update(parsed)
         cartDetails["name"] = entry["name"].removesuffix(".nes")
@@ -355,7 +347,6 @@ class nes_module(Module_Base.scarab_module):
     #  ROM dump                                                           #
     # ------------------------------------------------------------------ #
     def dumpRom(self, device: serial.Serial, cartDetails: dict) -> bytes:
-        """Dump PRG + CHR and return a complete iNES-headered ROM image."""
         mapper = cartDetails["mapper"]
         prg_banks = cartDetails["prg_banks"]
         chr_banks = cartDetails.get("chr_banks", 0)
@@ -395,9 +386,7 @@ class nes_module(Module_Base.scarab_module):
         header = cartDetails.get("header_bytes") or self._build_ines_header(mapper, prg_banks, chr_banks if has_chr else 0)
         return header + prg_data + chr_data
  
-    def _build_ines_header(self, mapper: int, prg_banks: int,
-                           chr_banks: int) -> bytes:
-        """Fallback: construct a minimal iNES 1.0 header."""
+    def _build_ines_header(self, mapper: int, prg_banks: int,chr_banks: int) -> bytes:
         h = bytearray(16)
         h[0:4] = b'NES\x1a'
         h[4] = prg_banks
@@ -410,31 +399,8 @@ class nes_module(Module_Base.scarab_module):
     #  Save dump / restore                                                #
     # ------------------------------------------------------------------ #
     def dumpSave(self, device: serial.Serial, cartDetails: dict) -> bytes:
-        print("Dumping NES SRAM (8 KB)...")
-        device.write(bytes([self.OP_DUMP_SAVE]))
-        data = device.read(0x2000)
-        print(f"  Received {len(data)} bytes.")
-        return data
+        return bytes(0x2000)
  
     def restoreSave(self, device: serial.Serial, cartDetails: dict,buffer: bytes) -> bool:
-        print("Restoring NES SRAM...")
-        device.write(bytes([self.OP_RESTORE_SAVE]))
-        chunk_size = 64
-        for i in range(0, len(buffer), chunk_size):
-            while device.in_waiting < 1:
-                continue
-            if device.read(1) != b'M':
-                print(f"Unexpected handshake at offset {i}.")
-                return False
-            chunk = buffer[i:i + chunk_size]
-            if len(chunk) < chunk_size:
-                chunk = chunk.ljust(chunk_size, b'\xff')
-            device.write(chunk)
-            while device.in_waiting < 1:
-                continue
-            if device.read(1) != b'K':
-                print(f"Bad acknowledgement at offset {i}.")
-                return False
-        print("SRAM restore complete.")
         return True
  

@@ -1,10 +1,13 @@
+#SCARAB Device interfacer class
+#Copyright (C) 2026 Stuart Rossiter
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import importlib
 import inspect
 from pathlib import Path
-import pkgutil
 import sys
 from Modules import Module_Base
-import Modules
 import serial, serial.tools.list_ports, time
 
 MEGA_IDS = [
