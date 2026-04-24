@@ -31,7 +31,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,           # False = no terminal window (GUI app)
+    console=True,           # False = no terminal window (GUI app)
     icon='Images/logo.ico',  # Optional: path to your .ico file
 )
 
@@ -49,3 +49,5 @@ coll = COLLECT(
 import shutil
 
 shutil.copytree('Images', 'dist/SCARAB/Images', dirs_exist_ok=True)
+shutil.copytree('Modules', 'dist/SCARAB/Modules', dirs_exist_ok=True)
+shutil.copy('didyouknow.txt', 'dist/SCARAB/didyouknow.txt')
