@@ -12,8 +12,8 @@
 #define NES_CHAR_WRITE_HIGH PORTH |= 0b00100000
 #define NES_ROMSEL_LOW PORTH &= 0b10111111
 #define NES_ROMSEL_HIGH PORTH |= 0b01000000
-#define NES_M2_LOW  PORTG &= 0b11111110
-#define NES_M2_HIGH PORTG |= 0b00000001
+#define NES_M2_LOW  PORTG &= 0b11111100
+#define NES_M2_HIGH PORTG |= 0b00000011
 #define NOP __asm__ __volatile__("nop\n\t")
 
 void nes_setup() {
@@ -24,7 +24,7 @@ void nes_setup() {
   DDRA = 0x00;   //PRG data
   DDRB = 0x00;   //CHR data
   DDRH = 0xFF;   //Control
-  DDRG |= 0b00000001;  // G0 as output
+  DDRG |= 0b00000011;  // G0 as output
   
   NES_M2_LOW;
   NES_CPU_RW_READ;
@@ -61,12 +61,15 @@ void setRomsel(unsigned int address) {
 }
 
 uint8_t readPrg(uint16_t address) {
+  prepPrgRead();
+  NES_CPU_RW_READ;
+  NES_ROMSEL_HIGH;
   NES_PRG_LOW_ADD = address & 0xFF;
   NES_PRG_UPP_ADD = (address >> 8) & 0xFF;
   delayMicroseconds(1);
-  NES_CPU_RW_READ;
+  
   NES_M2_HIGH;
-  delayMicroseconds(1);
+  setRomsel(address);
   uint8_t data = NES_PRG_DATA;
   return data;
 }

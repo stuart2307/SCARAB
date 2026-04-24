@@ -58,7 +58,7 @@ void loop() {
           myBuff[i] = Serial.read();
         }
         eeprom_write_page(0x50, 0x00, myBuff, 0x08);
-        Serial.println("OK");
+        Serial.print("OK");
         break;
       }
       case 0x11:{
